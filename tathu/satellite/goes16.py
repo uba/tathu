@@ -19,9 +19,6 @@ from tathu.utils import getGeoT
 # GOES-16 Spatial Reference System (proj4 string format)
 G16Proj4 = '+proj=geos +h=35786023.0 +a=6378137.0 +b=6356752.31414 +f=0.00335281068119356027 +lat_0=0.0 +lon_0=-75.0 +sweep=x +no_defs'
 
-# CMI FillValue definition
-CMI_FillValue = -1
-
 # GOES-16 viewing point (satellite position) height above the earth
 H = 35786023.0
 
@@ -37,6 +34,12 @@ def getScaleOffset(path):
     offset = nc.variables['CMI'].add_offset
     nc.close()
     return scale, offset
+
+def getFillValue(path, var='CMI'):
+    nc = Dataset(path, mode='r')
+    value = nc.variables[var]._FillValue
+    nc.close()
+    return value
 
 def getProj(path):
     # Open GOES-16 netCDF file
@@ -69,6 +72,16 @@ def getProjExtent(path):
     nc.close()
     return [llx, lly, urx, ury]
 
+def getGeoExtent(path):
+    nc = Dataset(path, mode='r')
+    extent = nc.variables['geospatial_lat_lon_extent']
+    llx = extent.geospatial_westbound_longitude
+    lly = extent.geospatial_southbound_latitude
+    urx = extent.geospatial_eastbound_longitude
+    ury = extent.geospatial_northbound_latitude
+    nc.close()
+    return [llx, lly, urx, ury]
+
 def getCoverageTime(path):
     nc = Dataset(path, mode='r')
     start = datetime.datetime.strptime(nc.time_coverage_start, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -76,70 +89,81 @@ def getCoverageTime(path):
     nc.close()
     return start, end
 
-def sat2grid(path, extent, resolution, targetPrj, driver, scale=None, offset=None, progress=None, options=['NUM_THREADS=ALL_CPUS']):
-    # Read scale/offset from file, if necessary
-    if scale is None or offset is None:
-        scale, offset = getScaleOffset(path)
+def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=False, progress=None, var='CMI'):
+    # Read scale/offset from file
+    scale, offset = getScaleOffset(path, var)
 
-    # Extract GOES-16 projection extent
-    goes16ProjExtent = getProjExtent(path)
+    # Extract GOES projection extent
+    goesProjExtent = getProjExtent(path)
+
+    # GOES spatial reference system
+    sourcePrj = getProj(path)
+
+    # Fill value
+    fillValue = getFillValue(path, var)
+
+    # Get total extent, if necessary
+    if extent is None:
+        extent = getGeoExtent(path)
 
     # Build connection info based on given driver name
     if driver == 'NETCDF':
-        connectionInfo = 'NETCDF:\"' + path + '\":CMI'
-    else: # HDF5
-        connectionInfo = 'HDF5:\"' + path + '\"://CMI'
-
-    # Open NetCDF file (GOES-16 data)
+        connectionInfo = 'NETCDF:\"' + path + '\":' + var
+    elif driver == 'HDF5':
+        connectionInfo = 'HDF5:\"' + path + '\"://' + var
+    else:
+        raise ValueError('Invalid driver name. Options: NETCDF or HDF5')
+        
+    # Open NetCDF file (GOES data) using GDAL  
     raw = gdal.Open(connectionInfo, gdal.GA_ReadOnly)
-
-    # GOES-16 spatial reference system
-    sourcePrj = osr.SpatialReference()
-    sourcePrj.ImportFromProj4(G16Proj4)
 
     # Setup projection and geo-transformation
     raw.SetProjection(sourcePrj.ExportToWkt())
-    raw.SetGeoTransform(getGeoT(goes16ProjExtent, raw.RasterYSize, raw.RasterXSize))
-    raw.GetRasterBand(1).SetNoDataValue(CMI_FillValue)
+    raw.SetGeoTransform(getGeoT(goesProjExtent, raw.RasterYSize, raw.RasterXSize))
+    raw.GetRasterBand(1).SetNoDataValue(float(fillValue))
 
     # Compute grid dimension
-    sizex = int(((extent[2] - extent[0]) * KM_PER_DEGREE) / resolution)
-    sizey = int(((extent[3] - extent[1]) * KM_PER_DEGREE) / resolution)
-
+    sizex = int(((extent[2] - extent[0]) * KM_PER_DEGREE)/resolution)
+    sizey = int(((extent[3] - extent[1]) * KM_PER_DEGREE)/resolution)
+    
     # Get memory driver
     memDriver = gdal.GetDriverByName('MEM')
 
-    # Create grid
-    grid = memDriver.Create('grid', sizex, sizey, 1, gdal.GDT_Float32)
-    grid.GetRasterBand(1).SetNoDataValue(CMI_FillValue)
-    grid.GetRasterBand(1).Fill(CMI_FillValue)
+    # Output data type and fill-value
+    type = gdal.GDT_Float32
+    if autoscale is False:
+        type, fillValue = gdal.GDT_UInt16, 65535
 
+    # Create grid
+    grid = memDriver.Create('grid', sizex, sizey, 1, type)
+    grid.GetRasterBand(1).SetNoDataValue(float(fillValue))
+    grid.GetRasterBand(1).Fill(float(fillValue))
+    
     # Setup projection and geo-transformation
     grid.SetProjection(targetPrj.ExportToWkt())
     grid.SetGeoTransform(getGeoT(extent, grid.RasterYSize, grid.RasterXSize))
 
-    # Perform the projection/resampling
+    # Perform the projection/resampling 
     gdal.ReprojectImage(raw, grid, sourcePrj.ExportToWkt(), targetPrj.ExportToWkt(), \
-                        gdal.GRA_NearestNeighbour, options=options, \
-                        callback=progress) #callback=gdal.TermProgress)
+                        gdal.GRA_NearestNeighbour, options=['NUM_THREADS=ALL_CPUS'], \
+                        callback=progress)
     # Close file
     raw = None
 
-    # Read grid data
-    array = grid.ReadAsArray()
+    if autoscale:
+        # Read grid data
+        array = grid.ReadAsArray()
+        # Apply scale and offset
+        array = np.ma.masked_equal(array, fillValue)
+        array = array * scale + offset
+        array = np.ma.filled(array, fillValue)
+        # Back to raster
+        grid.GetRasterBand(1).WriteArray(array)
 
-    # Mask fill values (i.e. invalid values)
-    array = np.ma.masked_equal(array, CMI_FillValue)
-
-    # Apply scale and offset
-    array = array * scale + offset
-
-    # Fill-value
-    array = np.ma.filled(array, CMI_FillValue)
-
-    grid.GetRasterBand(1).SetNoDataValue(CMI_FillValue)
-    grid.GetRasterBand(1).WriteArray(array)
-
+    # Adjust metadata, if necessary
+    if autoscale is False:
+        grid.SetMetadata(['SCALE={}'.format(scale), 'OFFSET={}'.format(offset)])
+    
     return grid
 
 def getFullDiskInfos(res):
