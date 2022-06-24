@@ -64,7 +64,7 @@ def array2raster(array, extent, srs=LAT_LON_WGS84, nodata=None, output='', drive
     nlines = array.shape[0]
     ncols = array.shape[1]
     type = gdal_array.NumericTypeCodeToGDALTypeCode(array.dtype)
-
+    
     # Adjust nodata values
     if nodata is not None and isinstance(array, np.ma.MaskedArray):
         array = np.ma.filled(array, nodata)
@@ -77,7 +77,7 @@ def array2raster(array, extent, srs=LAT_LON_WGS84, nodata=None, output='', drive
     # Adjust band and write
     band = raster.GetRasterBand(1)
     if nodata is not None:
-        band.SetNoDataValue(nodata)
+        band.SetNoDataValue(float(nodata))
     band.WriteArray(array)
 
     # Adjust SRS
