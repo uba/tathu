@@ -49,7 +49,7 @@ class ThresholdDetector(object):
             data[data <= self.value] = 0
         elif(self.op is ThresholdOp.GREATER_THAN_OR_EQUAL_TO):
             data[data < self.value] = 0
-
+            
         # Verify no-data
         nodata = image.GetRasterBand(1).GetNoDataValue()
 
@@ -74,6 +74,34 @@ class ThresholdDetector(object):
             systems.append(ConvectiveSystem(p))
 
         return systems
+
+class LessThan(ThresholdDetector):
+    """
+    Auxiliary class that can be used to detect system LessThan operator.
+    """
+    def __init__(self, value, minarea=None):
+        super(LessThan, self).__init__(value, ThresholdOp.LESS_THAN, minarea)
+
+class LessThanOrEqualTo(ThresholdDetector):
+    """
+    Auxiliary class that can be used to detect system LessThanOrEqualTo (<=) operator.
+    """
+    def __init__(self, value, minarea=None):
+        super(LessThanOrEqualTo, self).__init__(value, ThresholdOp.LESS_THAN_OR_EQUAL_TO, minarea)
+
+class GreaterThan(ThresholdDetector):
+    """
+    Auxiliary class that can be used to detect system GreaterThan (>) operator.
+    """
+    def __init__(self, value, minarea=None):
+        super(GreaterThan, self).__init__(value, ThresholdOp.GREATER_THAN, minarea)
+
+class GreaterThanOrEqualTo(ThresholdDetector):
+    """
+    Auxiliary class that can be used to detect system GreaterThanOrEqualTo (>=) operator.
+    """
+    def __init__(self, value, minarea=None):
+        super(GreaterThanOrEqualTo, self).__init__(value, ThresholdOp.GREATER_THAN_OR_EQUAL_TO, minarea)
 
 class MultiThresholdDetector(object):
     '''
