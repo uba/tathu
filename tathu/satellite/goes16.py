@@ -28,10 +28,14 @@ G16FDNColsDic  = {'0.5' : 21696,    '1.0' : 10848,    '2.0' : 5424, '4.0' : 2712
 G16FDScaleDic  = {'0.5' : 0.000014, '1.0' : 0.000028, '2.0' : 0.000056, '4.0' : 0.000112, '10.0' : 0.000280}
 G16FDOffsetDic = {'0.5' : 0.151865, '1.0' : 0.151858, '2.0' : 0.151844, '4.0' : 0.151816, '10.0' : 0.151900}
 
-def getScaleOffset(path):
+# Date format (from ABI File Naming Conventions)
+DATE_REGEX = '\d{14}'
+DATE_FORMAT = '%Y%j%H%M%S%f'
+
+def getScaleOffset(path, var='CMI'):
     nc = Dataset(path, mode='r')
-    scale = nc.variables['CMI'].scale_factor
-    offset = nc.variables['CMI'].add_offset
+    scale = nc.variables[var].scale_factor
+    offset = nc.variables[var].add_offset
     nc.close()
     return scale, offset
 
