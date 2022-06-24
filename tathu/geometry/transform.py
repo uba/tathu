@@ -10,7 +10,7 @@ from osgeo import ogr
 from shapely import affinity, wkb
 
 def ogr2shapely(geom):
-    return wkb.loads(geom.ExportToWkb())
+    return wkb.loads(bytes(geom.ExportToWkb()))
 
 def shapely2ogr(geom):
     return ogr.CreateGeometryFromWkb(geom.wkb)
