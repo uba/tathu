@@ -34,7 +34,7 @@ def polygonize(image, minArea=None):
         # Verify minimum area
         if(minArea is None):
             polygons.append(p)
-        elif (p.GetArea() > minArea):
+        elif(p.GetArea() > minArea):
             polygons.append(p)
 
     return polygons
