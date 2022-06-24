@@ -12,7 +12,7 @@ import numpy as np
 from osgeo import ogr
 from scipy import ndimage
 from skimage.feature import peak_local_max
-from skimage.morphology import watershed
+from skimage.segmentation import watershed
 
 from tathu.tracking.system import ConvectiveSystem, ConvectiveSystemManager
 from tathu.tracking.utils import copyImage, polygonize
