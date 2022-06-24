@@ -14,7 +14,7 @@ def copyImage(image):
     driver = gdal.GetDriverByName('MEM')
     return driver.CreateCopy('image', image, 0)
 
-def polygonize(image, minArea=None):
+def polygonize(image, minArea=None, progress=None):
     # Create layer in memory
     driver = ogr.GetDriverByName('MEMORY')
     ds = driver.CreateDataSource('systems')
@@ -24,7 +24,7 @@ def polygonize(image, minArea=None):
     band = image.GetRasterBand(1)
 
     # Poligonize using GDAL method
-    gdal.Polygonize(band, band.GetMaskBand(), layer, -1, options=['8CONNECTED=8'], callback=None) #callback=gdal.TermProgress)
+    gdal.Polygonize(band, band.GetMaskBand(), layer, -1, options=['8CONNECTED=8'], callback=progress)
 
     polygons = []
 
@@ -34,7 +34,7 @@ def polygonize(image, minArea=None):
         # Verify minimum area
         if(minArea is None):
             polygons.append(p)
-        elif(p.GetArea() > minArea):
+        elif (p.GetArea() > minArea):
             polygons.append(p)
 
     return polygons
