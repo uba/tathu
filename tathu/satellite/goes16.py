@@ -93,7 +93,7 @@ def getCoverageTime(path):
     nc.close()
     return start, end
 
-def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=False, progress=None, var='CMI'):
+def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=True, progress=None, var='CMI'):
     # Read scale/offset from file
     scale, offset = getScaleOffset(path, var)
 
