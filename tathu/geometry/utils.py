@@ -17,6 +17,16 @@ def convert2interleaved(e):
     '''
     return (e[0], e[2], e[1], e[3])
 
+def extractCoordinates(polygon):
+    '''
+    This method extract the coordinates of polygon to two python lists.
+    '''
+    lats, lons = [], []
+    points = polygon.GetGeometryRef(0).GetPoints()
+    for p in points:
+        lons.append(p[0]); lats.append(p[1])
+    return lats, lons
+
 def extractCoordinates2NumpyArray(polygon):
     '''
     This method extract the coordinates of polygon to NumpyArray (N x 2).
