@@ -15,6 +15,8 @@ import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 
+from tathu.geometry.utils import extractCoordinates
+
 class MapView(object):
     def __init__(self, extent, references=[]):
         # Create a new figure
@@ -42,7 +44,7 @@ class MapView(object):
         self.plotArray(array, cmap, vmin, vmax, colorbar)
 
     def plotArray(self, array, cmap=None, vmin=None, vmax=None, colorbar=False):
-        im = self.ax.imshow(array, transform=self.crs, cmap=cmap, vmin=vmin, vmax=vmax, extent=self.extent,)
+        im = self.ax.imshow(array, transform=self.crs, cmap=cmap, vmin=vmin, vmax=vmax, extent=self.extent)
         if colorbar:
             plt.colorbar(im, orientation='vertical', label=self.clabel)
 
@@ -51,7 +53,7 @@ class MapView(object):
         x, y = [], []
         for p in polygons:
             # Extract lat/lon
-            lats, lons = self.__extractCoordinates(p)
+            lats, lons = extractCoordinates(p)
 
             # Compute centroid, if requested
             if(centroids):
@@ -70,13 +72,109 @@ class MapView(object):
         poly = Polygon(xy, facecolor=facecolor, lw=lw, edgecolor=edgecolor, alpha=alpha)
         plt.gca().add_patch(poly)
 
-    def __extractCoordinates(self, polygon):
-        lats, lons = [], []
-        points = polygon.GetGeometryRef(0).GetPoints()
-        for p in points:
-            lons.append(p[0])
-            lats.append(p[1])
-        return lats, lons
+    def show(self):
+        plt.show()
+
+class SystemHistoryView:
+    def __init__(self, family, images=None, extent=None):
+        # Systems that will be plotted
+        self.family = family
+
+        # Images information (optional)
+        self.images = images
+
+        # Image extent
+        if(extent is None):
+            self.extent = family.getExtent()
+        else:
+            self.extent = extent
+        
+        # Adjust for cartopy format
+        self.extent = [self.extent[0], self.extent[2],
+            self.extent[1], self.extent[3]]
+
+        # Create a new figure
+        self.fig = plt.figure()
+
+        # Set of axes
+        self.axes = []
+
+        # SRS
+        self.crs = ccrs.PlateCarree()
+
+        # Build plot grid
+        self.__createPlotGrid()
+
+        # Draw!
+        self.__plotSystems()
 
     def show(self):
         plt.show()
+
+    def __createPlotGrid(self):
+        # Compute number of cols and lines
+        ncols = 6
+        n = len(self.family.systems)
+        nlines = int(n / ncols + 1)
+
+        # Create individual plots
+        i = 0
+        self.axes = []
+        for lin in range(nlines):
+            for col in range(ncols):
+                ax = plt.subplot2grid((nlines, ncols), (lin, col), projection=self.crs)
+                ax.set_extent(self.extent, crs=self.crs)
+                self.axes.append(ax)
+                i += 1
+                if(i == n):
+                    break
+
+    def __plotSystems(self):
+        # Get geo-extent
+        e = self.extent
+
+        # Plot each system
+        i = 0
+        for s in self.family.systems:
+            self.__plotReferences(self.axes[i])
+
+            if(self.images is not None):
+                if(self.images[i] is not None):
+                    if(isinstance(self.images[i], np.ndarray)):
+                        image = self.images[i]
+                    else:
+                        image = self.images[i].ReadAsArray()
+
+                    self.ax.imshow(image, transform=self.crs, extent=self.extent)
+
+            # Extract lat/lon
+            lats, lons = extractCoordinates(s.geom)
+
+            # Plot polygon
+            self.__plotPolygon(lats, lons, 'none', 1.0, 1.0, 'k', self.axes[i])
+
+            # Extract lat/lon
+            lats, lons = extractCoordinates(s.geom.ConvexHull())
+
+            # Plot polygon
+            self.__plotPolygon(lats, lons, 'none', 1.0, 1.0, 'red', self.axes[i])
+
+            if s.timestamp:
+                self.axes[i].set_title(s.timestamp.strftime('%H:%M') + ' UTC', fontsize=10, va='center')
+
+            i += 1
+
+        plt.tight_layout(h_pad=2.5)
+
+    def __plotPolygon(self, lats, lons, facecolor, alpha, lw, edgecolor, ax):
+        xy = list(zip(lons, lats))
+        poly = Polygon(xy, facecolor=facecolor, lw=lw, edgecolor=edgecolor, alpha=alpha)
+        plt.sca(ax)
+        plt.gca().add_patch(poly)
+
+    def __plotReferences(self, ax):
+        ax.coastlines(linewidth=0.4, linestyle='solid', color='white')
+        ax.add_feature(cfeature.BORDERS, linewidth=0.4, linestyle='solid', color='white')
+        gl = ax.gridlines(draw_labels=True, linewidth=0.25, linestyle='--', color='k')
+        gl.top_labels = False
+        gl.right_labels = False
