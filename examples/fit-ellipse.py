@@ -16,7 +16,7 @@ sys.path.append('../')
 import matplotlib.pyplot as plt
 
 from tathu.geometry.constants import EXAMPLE_GEOMETRY
-from tathu.geometry import transform
+from tathu.geometry.utils import fitEllipse
 
 def plot(geoms):
     plt.figure()
@@ -29,10 +29,6 @@ def plot(geoms):
     plt.show()
 
 geom = EXAMPLE_GEOMETRY
+ellipse = fitEllipse(geom)
 
-rotated = transform.rotate(geom, -45.0)
-translated = transform.translate(geom, 5, 5)
-scaled = transform.scale(geom, 2.0, 2.0)
-translated_rotated = transform.rotate(translated, -90.0)
-
-plot([geom, rotated, translated, scaled, translated_rotated])
+plot([geom, ellipse])
