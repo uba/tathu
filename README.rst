@@ -31,7 +31,7 @@ TATHU - Tracking and Analysis of Thunderstorms
 
 About
 =====
-TATHU is a Python package for tracking and analyzing life cycle of convective systems.
+TATHU is a Python package for tracking and analyzing the life cycle of convective systems.
 
 License
 =======
