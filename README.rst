@@ -5,11 +5,9 @@
     TATHU - Tracking and Analysis of Thunderstorms is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
-
 ==============================================
 TATHU - Tracking and Analysis of Thunderstorms
 ==============================================
-
 
 .. image:: https://img.shields.io/badge/license-MIT-green
         :target: https://github.com//uba/tathu/blob/master/LICENSE
@@ -34,3 +32,12 @@ TATHU - Tracking and Analysis of Thunderstorms
 About
 =====
 TATHU is a Python package for tracking and analyzing life cycle of convective systems.
+
+License
+=======
+
+.. admonition::
+    Copyright (C) 2022 INPE.
+
+    TATHU - Tracking and Analysis of Thunderstorms is free software; you can redistribute it and/or modify it
+    under the terms of the MIT License; see LICENSE file for more details.
