@@ -9,7 +9,6 @@
 import datetime
 
 import numpy as np
-import pyproj
 from netCDF4 import Dataset
 from osgeo import gdal, osr
 
