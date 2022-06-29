@@ -16,18 +16,6 @@ from osgeo import gdal, osr
 from tathu.constants import KM_PER_DEGREE
 from tathu.utils import getGeoT
 
-# GOES-16 Spatial Reference System (proj4 string format)
-G16Proj4 = '+proj=geos +h=35786023.0 +a=6378137.0 +b=6356752.31414 +f=0.00335281068119356027 +lat_0=0.0 +lon_0=-75.0 +sweep=x +no_defs'
-
-# GOES-16 viewing point (satellite position) height above the earth
-H = 35786023.0
-
-# Full-disk (FD) properties by resolution (GOES-16)
-G16FDNLinesDic = {'0.5' : 21696,    '1.0' : 10848,    '2.0' : 5424, '4.0' : 2712, '10.0' : 1086}
-G16FDNColsDic  = {'0.5' : 21696,    '1.0' : 10848,    '2.0' : 5424, '4.0' : 2712, '10.0' : 1086}
-G16FDScaleDic  = {'0.5' : 0.000014, '1.0' : 0.000028, '2.0' : 0.000056, '4.0' : 0.000112, '10.0' : 0.000280}
-G16FDOffsetDic = {'0.5' : 0.151865, '1.0' : 0.151858, '2.0' : 0.151844, '4.0' : 0.151816, '10.0' : 0.151900}
-
 # Date format (from ABI File Naming Conventions)
 DATE_REGEX = '\d{14}'
 DATE_FORMAT = '%Y%j%H%M%S%f'
@@ -69,6 +57,7 @@ def getProj(path):
 
 def getProjExtent(path):
     nc = Dataset(path, mode='r')
+    H = proj = nc['goes_imager_projection'].perspective_point_height
     llx = nc.variables['x_image_bounds'][0] * H
     lly = nc.variables['y_image_bounds'][1] * H
     urx = nc.variables['x_image_bounds'][1] * H
@@ -117,8 +106,8 @@ def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=Tru
         connectionInfo = 'HDF5:\"' + path + '\"://' + var
     else:
         raise ValueError('Invalid driver name. Options: NETCDF or HDF5')
-        
-    # Open NetCDF file (GOES data) using GDAL  
+
+    # Open NetCDF file (GOES data) using GDAL
     raw = gdal.Open(connectionInfo, gdal.GA_ReadOnly)
 
     # Setup projection and geo-transformation
@@ -129,7 +118,7 @@ def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=Tru
     # Compute grid dimension
     sizex = int(((extent[2] - extent[0]) * KM_PER_DEGREE)/resolution)
     sizey = int(((extent[3] - extent[1]) * KM_PER_DEGREE)/resolution)
-    
+
     # Get memory driver
     memDriver = gdal.GetDriverByName('MEM')
 
@@ -142,12 +131,12 @@ def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=Tru
     grid = memDriver.Create('grid', sizex, sizey, 1, type)
     grid.GetRasterBand(1).SetNoDataValue(float(fillValue))
     grid.GetRasterBand(1).Fill(float(fillValue))
-    
+
     # Setup projection and geo-transformation
     grid.SetProjection(targetPrj.ExportToWkt())
     grid.SetGeoTransform(getGeoT(extent, grid.RasterYSize, grid.RasterXSize))
 
-    # Perform the projection/resampling 
+    # Perform the projection/resampling
     gdal.ReprojectImage(raw, grid, sourcePrj.ExportToWkt(), targetPrj.ExportToWkt(), \
                         gdal.GRA_NearestNeighbour, options=['NUM_THREADS=ALL_CPUS'], \
                         callback=progress)
@@ -167,45 +156,5 @@ def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=Tru
     # Adjust metadata, if necessary
     if autoscale is False:
         grid.SetMetadata(['SCALE={}'.format(scale), 'OFFSET={}'.format(offset)])
-    
+
     return grid
-
-def getFullDiskInfos(res):
-    return G16FDNLinesDic[res], G16FDNColsDic[res], G16FDScaleDic[res], G16FDOffsetDic[res]
-
-def buildFullDiskLatLonGrid(resolution):
-    # TODO: verify if resolution is valid.
-    # Allowed values: ['0.5', '1.0', '2.0', '4.0', '10.0']
-
-    # Get Full-disk properties
-    nlines, ncols, scale, offset = getFullDiskInfos(resolution)
-
-    # GOES-16 Spatial Reference System
-    sourcePrj = pyproj.Proj(G16Proj4)
-
-    # Lat/Lon WSG84 Spatial Reference System
-    targetPrj = pyproj.Proj('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
-
-    # Create projection coordinates array
-    x = np.arange(0, ncols)
-    y = np.arange(0, nlines)
-
-    # Apply scale and offset (scanning angle) + H factor = projection coordinates
-    x = ((x * scale) - offset) * H
-    y = ((y * (-1 * scale)) + offset) * H
-
-    # Create matrix with values
-    x, y = np.meshgrid(x, y)
-
-    # Reshape to vector (1-d)
-    x = x.reshape(nlines * ncols)
-    y = y.reshape(nlines * ncols)
-
-    # Transform
-    lon, lat = pyproj.transform(sourcePrj, targetPrj, x, y)
-
-    # Reshape to matrix format
-    lat = lat.reshape(nlines, ncols)
-    lon = lon.reshape(nlines, ncols)
-
-    return lat, lon
