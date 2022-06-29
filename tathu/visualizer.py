@@ -88,7 +88,7 @@ class SystemHistoryView:
             self.extent = family.getExtent()
         else:
             self.extent = extent
-        
+
         # Adjust for cartopy format
         self.extent = [self.extent[0], self.extent[2],
             self.extent[1], self.extent[3]]
@@ -178,3 +178,118 @@ class SystemHistoryView:
         gl = ax.gridlines(draw_labels=True, linewidth=0.25, linestyle='--', color='k')
         gl.top_labels = False
         gl.right_labels = False
+
+
+class AnimationMap(animation.TimedAnimation):
+    def __init__(self, family, attributes):
+        self.extent = family.getExtent()
+        self.polygons = family.getPolygons()
+        self.arrays = family.getRasters()
+        self.timestamps = family.getTimestamps()
+        self.timeseries = []
+        for name in attributes:
+            self.timeseries.append(family.getAttribute(name))
+
+        fig = plt.figure()
+
+        # Adjust for cartopy format
+        self.extent = [self.extent[0], self.extent[2],
+            self.extent[1], self.extent[3]]
+
+        # SRS
+        self.crs = ccrs.PlateCarree()
+
+        # Create 3 graphics: polygons, arrays, and timeseries
+        axes = []
+        axes.append(plt.subplot2grid((2, 2), (0, 0), projection=self.crs))
+        axes.append(plt.subplot2grid((2, 2), (0, 1)))
+        axes.append(plt.subplot2grid((2, 2), (1, 0), colspan=2))
+
+        # Adjust map extent
+        self.map = axes[0]
+        self.map.set_extent(self.extent, crs=self.crs)
+
+        # Draw grids
+        gl = self.map.gridlines(draw_labels=True, linewidth=0.25, linestyle='--', color='k')
+        gl.top_labels = False
+        gl.right_labels = False
+
+        # Create polygon graphic
+        self.poly = Polygon([[0, 0], [0,0]], facecolor='none', edgecolor='red', alpha=1.0, lw=1.0)
+        self.map.add_patch(self.poly)
+
+        # Create axis for timeseries (multi-scale using twinx)
+        self.tsAxes = [axes[2]]
+        for i in range(1, len(attributes)):
+            self.tsAxes.append(axes[2].twinx())
+            self.tsAxes[i].set_xticklabels([])
+
+        # Get color for each timeseries
+        cmap = self.__getColorMap(len(attributes), 'Dark2')
+
+        # Create line for each timeseries
+        self.x = []
+        self.lines = []
+
+        for i in range(0, len(attributes)):
+            self.x.append(np.arange(len(self.timeseries[i])))
+            line = Line2D([], [], color=cmap(i), marker='o', label=attributes[i])
+            self.lines.append(line)
+            self.tsAxes[i].add_line(line)
+            self.tsAxes[i].set_xlim(0, len(self.timeseries[i]))
+            self.tsAxes[i].set_ylim(min(self.timeseries[i]), max(self.timeseries[i]))
+
+        # Add legend
+        labs = [l.get_label() for l in self.lines]
+        self.tsAxes[0].legend(self.lines, labs, loc='upper right')
+
+        # Extract hour minute
+        hourmin = [t.strftime('%H:%M') for t in self.timestamps]
+
+        # Show timestamp information
+        axes[2].set_xticks(self.x[0])
+        axes[2].set_xticklabels(hourmin, rotation=45)
+
+        self.array = axes[1].imshow(self.arrays[0])
+        axes[1].get_xaxis().set_visible(False)
+        axes[1].get_yaxis().set_visible(False)
+        axes[1].set_facecolor((0, 0, 0))
+
+        animation.TimedAnimation.__init__(self, fig, interval=200, blit=False, repeat_delay=2000)
+
+    def show(self):
+        plt.show()
+
+    def _draw_frame(self, framedata):
+        # Frame number
+        i = framedata
+
+        # Animate array
+        self.array.set_array(self.arrays[i])
+        self.array.set_extent((0, self.arrays[i].shape[1], 0, self.arrays[i].shape[0]))
+
+        # Animate polygon
+        lats, lons = extractCoordinates(self.polygons[i])
+        xy = list(zip(lons, lats))
+        self.poly.set_xy(xy)
+
+        toDraw = []
+        toDraw.append(self.poly)
+
+        # Animate lines
+        for k in range(0, len(self.lines)):
+            self.lines[k].set_data(self.x[k][0:i+1], self.timeseries[k][0:i+1])
+            toDraw.append(self.lines[k])
+
+        self._drawn_artists = toDraw
+
+    def new_frame_seq(self):
+        return iter(list(range(len(self.polygons))))
+
+    def _init_draw(self):
+        pass
+
+    def __getColorMap(self, n, name='hsv'):
+        '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
+        RGB color; the keyword argument name must be a standard mpl colormap name.'''
+        return plt.cm.get_cmap(name, n)
