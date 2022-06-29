@@ -64,7 +64,7 @@ def array2raster(array, extent, srs=LAT_LON_WGS84, nodata=None, output='', drive
     nlines = array.shape[0]
     ncols = array.shape[1]
     type = gdal_array.NumericTypeCodeToGDALTypeCode(array.dtype)
-    
+
     # Adjust nodata values
     if nodata is not None and isinstance(array, np.ma.MaskedArray):
         array = np.ma.filled(array, nodata)
@@ -103,6 +103,36 @@ def file2timestamp(path, regex='\d{12}', format='%Y%m%d%H%M'):
         date = datetime.strptime(s, format)
         # Return now. Detail: considering first found date
         return date
+
+def getGeoInfoFromCTL(path):
+    '''
+    This function try extract grid geospatial information from a CTL file.
+    Geospatial info = number of lines, columns and geo-extent.
+    '''
+    with open(path, 'r') as f:
+        fileContent = f.readlines()
+    # Infos that will be searched
+    llx = lly = nlines = ncols = resx = resy = None
+    # Parser
+    for line in fileContent:
+        if line.lower().startswith('xdef'):
+            tokens = line.lower().split()
+            assert tokens[2] == 'linear'
+            ncols = int(tokens[1])
+            llx = float(tokens[3])
+            resx = float(tokens[4])
+        elif line.lower().startswith('ydef'):
+            tokens = line.lower().split()
+            assert tokens[2] == 'linear'
+            nlines = int(tokens[1])
+            lly = float(tokens[3])
+            resy = float(tokens[4])
+    assert llx and lly
+    assert nlines and ncols
+    assert resx and resy
+    # Comput extent
+    extent = [llx, lly, llx + (ncols * resx), lly + (nlines * resy)]
+    return nlines, ncols, extent
 
 class Timer(object):
     def __enter__(self):
