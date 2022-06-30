@@ -48,6 +48,19 @@ CS have a spatio-temporal behavior: they originate in a specific geographic loca
     :width: 600
     :alt: CS and spatio-temporal behavior.
 
+The general steps involved for automatic monitoring the CS are:
+
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-methodology-en.jpg
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-methodology-en.jpg
+    :width: 800
+    :alt: Tracking methodology.
+    
+* **Observation**: data acquisition from specific instrumentation. For example, digital images obtained from satellites of geostationary or polar orbit, measurements of meteorological RADAR, among other sources;
+* **Detection**: step to identify the objects of interest existing in the observed data. In the specific case of digital images, the use of different processing techniques can be considered, such as: thresholding, segmentation, classification, filters, among others.
+* **Description**: extraction of different types of attributes and classification. In this case, one can consider spectral attributes (measurements of a sensor in different channels), statistical analysis (mean, variance, etc.) and shape characteristics (size, orientation, rectangularity, among others);
+* **Tracking**: includes detection and description steps followed by an association process. The objective is to determine the behavior and evolution of the objects of interest, as well as the appearance of new objects;
+* **Forecast**: based on specialized knowledge (models and parameterization) and the history of each object, it aims to predict what will be the behavior for future moments.
+    
 Installation
 =======
 
