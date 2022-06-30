@@ -43,6 +43,11 @@ Contextualization
 
 CS have a spatio-temporal behavior: they originate in a specific geographic location and change over time in relation to position, size and microphysical composition. We may use **remote sensing data**, such as satellite imagery and radar data, in order to **identifying**, **tracking**, **analyzing** and **nowcasting** the CS evolution.
 
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-evolution-en.jpg
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-evolution-en.jpg
+    :width: 600
+    :alt: CS and spatio-temporal behavior.
+
 Installation
 =======
 
