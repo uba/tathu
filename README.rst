@@ -33,6 +33,25 @@ About
 =====
 TATHU is a Python package for tracking and analyzing the life cycle of convective systems.
 
+**Convective Systems (CS)** are defined as an organized ensemble of thunderstorm clusters and are associated with severe weather events and natural disasters (hail, lightning, precipitation extremes, high winds, among others). Thus, several works propose automatic methods for **monitoring** these elements in order to provide, for each individual CS, characteristics that can describe its **spatio-temporal** evolution, i.e. the life cycle.
+
+The package provides a modular and extensible structure, supports different types of geospatial data and proposes the use of **Geoinformatics
+techniques** and **spatial databases** in order to aid in the analysis and computational representation of the CS.
+
+Contextualization
+=======
+
+CS have a spatio-temporal behavior: they originate in a specific geographic location and change over time in relation to position, size and microphysical composition. We may use **remote sensing data**, such as satellite imagery and radar data, in order to **identifying**, **tracking**, **analyzing** and **nowcasting** the CS evolution.
+
+Installation
+=======
+
+Documentation
+=======
+
+References
+=======
+
 License
 =======
 
