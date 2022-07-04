@@ -177,7 +177,7 @@ The visualization can be performed based on the following snippet:
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
     :alt: Map view component.
     
-The same result can be exported to a database instance with geo-spatial support, like SpatiaLite:
+The same result can be exported to a database instance with geospatial support, like SpatiaLite and PostGIS:
 
 .. code-block:: python
 
