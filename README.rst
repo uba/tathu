@@ -166,6 +166,10 @@ The visualization can be performed based on the following snippet:
     # Show GUI result
     m.show()
 
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
+    :alt: Map view component
+    
 Installation
 =======
 
