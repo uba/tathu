@@ -277,9 +277,6 @@ The CS lifecycle can be visualized, where each plot represents an instant of tim
     :width: 800
     :alt: CS lifecycle view.
     
-Installation
-=======
-
 Documentation
 =============
 
