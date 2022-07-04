@@ -31,13 +31,19 @@ TATHU - Tracking and Analysis of Thunderstorms
 
 About
 =====
+
 TATHU is a Python package for tracking and analyzing the life cycle of Convective Systems (CS).
 
 The package provides a modular and extensible structure, supports different types of geospatial data and proposes the use of **Geoinformatics
 techniques** and **spatial databases** in order to aid in the analysis and computational representation of the CS.
 
+Installation
+============
+
+See `INSTALL.rst <./INSTALL.rst>`_.
+
 Contextualization
-=======
+=================
 
 **Convective Systems (CS)** are defined as an organized ensemble of thunderstorm clusters and are associated with severe weather events and natural disasters (hail, lightning, precipitation extremes, high winds, among others). Thus, several works propose automatic methods for **monitoring** these elements in order to provide, for each individual CS, characteristics that can describe its **spatio-temporal** evolution, i.e. the life cycle.
 
@@ -62,7 +68,8 @@ The general steps involved for automatic monitoring the CS are:
 * **Forecast**: based on specialized knowledge (models and parameterization) and the history of each object, it aims to predict what will be the behavior for future moments.
 
 Conceptual Model
-=====
+================
+
 TATHU proposes a conceptual model to address the problem of tracking and analyzing the CS lifecycle.
 
 The entities of the model are:
@@ -81,7 +88,8 @@ Thus, four different entities are used:
 * **Forecaster**: this interface is built to provide predictions for the CS. One option is to consider a conservative movement, based only on the current speed of the system - ``ConservativeForecaster``.
 
 From Theory to Practice
-=======
+=======================
+
 The set of code snippet below shows how to use the concepts proposed by TATHU package to identify and track CS using satellite imagery (GOES-16).
 
 Use a netCDF file with values measured by ABI/GOES-16, Channel 13, on June 15, 2021 - 00:00 UTC. A geographic region of interest (extent) and a spatial resolution are defined. The remapping is performed from the original satellite projection to a regular grid, with a LatLon/WGS84 coordinate system (EPSG:4326).
@@ -221,14 +229,11 @@ Finally, the prediction of CS for future moments can be performed based on the f
     # Forecast result for each time
     forecasts = f.forecast(current)
 
-Installation
-=======
-
 Documentation
-=======
+=============
 
 References
-=======
+==========
 
 License
 =======
