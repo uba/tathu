@@ -69,7 +69,6 @@ The entities of the model are:
 
 .. image:: https://github.com/uba/tathu/raw/master/diagrams/tathu-diagram-entities.png
     :target: https://github.com/uba/tathu/raw/master/diagrams/tathu-diagram-entities.png
-    :width: 600
     :alt: Entities.
 
 Basically, a geospatial database contains the observed elements of interest, represented by the ``ConvectiveSystem`` class.
