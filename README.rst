@@ -31,15 +31,15 @@ TATHU - Tracking and Analysis of Thunderstorms
 
 About
 =====
-TATHU is a Python package for tracking and analyzing the life cycle of convective systems.
-
-**Convective Systems (CS)** are defined as an organized ensemble of thunderstorm clusters and are associated with severe weather events and natural disasters (hail, lightning, precipitation extremes, high winds, among others). Thus, several works propose automatic methods for **monitoring** these elements in order to provide, for each individual CS, characteristics that can describe its **spatio-temporal** evolution, i.e. the life cycle.
+TATHU is a Python package for tracking and analyzing the life cycle of Convective Systems (CS).
 
 The package provides a modular and extensible structure, supports different types of geospatial data and proposes the use of **Geoinformatics
 techniques** and **spatial databases** in order to aid in the analysis and computational representation of the CS.
 
 Contextualization
 =======
+
+**Convective Systems (CS)** are defined as an organized ensemble of thunderstorm clusters and are associated with severe weather events and natural disasters (hail, lightning, precipitation extremes, high winds, among others). Thus, several works propose automatic methods for **monitoring** these elements in order to provide, for each individual CS, characteristics that can describe its **spatio-temporal** evolution, i.e. the life cycle.
 
 CS have a spatio-temporal behavior: they originate in a specific geographic location and change over time in relation to position, size and microphysical composition. We may use **remote sensing data**, such as satellite imagery and radar data, in order to **identifying**, **tracking**, **analyzing** and **nowcasting** the CS evolution.
 
@@ -69,7 +69,6 @@ The entities of the model are:
 
 .. image:: https://github.com/uba/tathu/raw/master/diagrams/tathu-diagram-entities.png
     :target: https://github.com/uba/tathu/raw/master/diagrams/tathu-diagram-entities.png
-    :width: 600
     :alt: Entities.
 
 Basically, a geospatial database contains the observed elements of interest, represented by the ``ConvectiveSystem`` class.
@@ -165,6 +164,62 @@ The visualization can be performed based on the following snippet:
 
     # Show GUI result
     m.show()
+
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
+    :alt: Map view component
+    
+The same result can be exported to a database instance with geo-spatial support, like SpatiaLite:
+
+.. code-block:: python
+
+    from tathu.io import spatialite
+    database = spatialite.Outputter('systems.sqlite', 'systems')
+    database.output(systems)
+    
+Once the CS present in the image of June 15, 2021 - 00:00 UTC have been detected, it is now possible to perform the tracking. We use a new image, from the same day, 00:10 UTC. Use of ``trackers.OverlapAreaTracker``. 
+    
+.. code-block:: python
+
+    # Path to new netCDF GOES-16 file - ("present")
+    path = './data/goes16/ch13/2021/06/ch13_202106150010.nc'
+
+    # Remap
+    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+
+    # Tracking
+    previous = systems
+    # Detect new systems
+    systems = detector.detect(grid)
+
+    from tathu.tracking import trackers
+
+    # Define overlap area criterion
+    overlapAreaCriterion = 0.1 # 10%
+
+    # Create overlap area strategy
+    strategy = trackers.RelativeOverlapAreaStrategy(overlapAreaCriterion)
+
+    # Create tracker entity
+    t = trackers.OverlapAreaTracker(previous, strategy=strategy)
+    t.track(current)
+
+    # Save to database
+    database.output(systems)
+
+Finally, the prediction of CS for future moments can be performed based on the following code fragment. Use of ``forecasters.Conservative``.
+
+.. code-block:: python
+
+    from tathu.tracking import forecasters
+    
+    times = [15, 30, 45, 60, 90, 120] # minutes
+
+    # Forecaster entity
+    f = forecasters.Conservative(previous, intervals=times)
+
+    # Forecast result for each time
+    forecasts = f.forecast(current)
 
 Installation
 =======
