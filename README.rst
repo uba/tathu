@@ -170,6 +170,14 @@ The visualization can be performed based on the following snippet:
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
     :alt: Map view component
     
+The same result can be exported to a database instance with geo-spatial support, like SpatiaLite:
+
+.. code-block:: python
+
+    from tathu.io import spatialite
+    database = spatialite.Outputter('systems.sqlite', 'systems')
+    database.output(systems)
+    
 Installation
 =======
 
