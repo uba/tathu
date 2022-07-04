@@ -7,3 +7,18 @@
 
 Installation
 ============
+
+We recommend `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ to install and use the TATHU package.
+
+Clone the TATHU Repository::
+
+    git clone https://github.com/uba/tathu.git
+    
+Go to the source code folder::
+
+    cd tathu
+    
+Create a new environment with all necessary dependencies::
+
+    conda env create -f environment.yml
+    
