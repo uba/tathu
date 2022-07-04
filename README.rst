@@ -167,7 +167,7 @@ The visualization can be performed based on the following snippet:
 
 .. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
-    :alt: Map view component
+    :alt: Map view component.
     
 The same result can be exported to a database instance with geo-spatial support, like SpatiaLite:
 
@@ -221,6 +221,54 @@ Finally, the prediction of CS for future moments can be performed based on the f
     # Forecast result for each time
     forecasts = f.forecast(current)
 
+Considering that the different CS were detected and stored, the load process can be performed based on the following code snippet:
+
+.. code-block:: python
+
+    from tathu.io import spatialite
+
+    # Setup informations to load systems from database
+    dbname = 'systems.sqlite'
+    table = 'systems'
+
+    # Connect to database
+    db = spatialite.Loader(dbname, table)
+
+    # Get all-systems names
+    names = db.loadNames()
+
+    # Load first system, geometry and attributes
+    family = db.load(names[0], ['min', 'mean', 'std', 'count'])
+
+Other methods can be used to load CS more efficiently, for example: from the duration time, considering a day or a date range, based on a spatial restriction, among others. For more specific cases, it is also possible to perform a query directly to the database using SQL language.
+
+.. code-block:: python
+
+    # Load CS with life-cycle time-duration >= 10 hours
+    systems = db.loadByDuration(10, operator='>=')
+
+    # Load CS with life-cycle time-duration < 1 hours
+    systems = db.loadByDuration(1, operator='<')
+
+    # Load CS from day 26/06/2021
+    systems = db.loadByDay('20210626')
+
+      # Load CS using SQL query            
+    systems = db.query('generic query example') 
+
+The CS lifecycle can be visualized, where each plot represents an instant of time in the systems life cycle.
+
+.. code-block:: python
+
+    from tathu.tracking import visualizer
+    view = visualizer.SystemHistoryView(family)
+    view.show()
+
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-life-cycle-view.png
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-life-cycle-view.png
+    :width: 800
+    :alt: CS lifecycle view.
+    
 Installation
 =======
 
