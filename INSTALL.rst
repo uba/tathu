@@ -20,5 +20,5 @@ Go to the source code folder::
     
 Create a new environment with all necessary dependencies::
 
-    conda env create -f environment.yml
+    conda env create -f env.yml
     
