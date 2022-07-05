@@ -6,11 +6,6 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
-import sys
-
-# To use local package
-sys.path.append('../')
-
 from tathu.io import spatialite
 from tathu import visualizer
 

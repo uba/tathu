@@ -8,11 +8,6 @@
 
 """Example for TATHU - Tracking and Analysis of Thunderstorms."""
 
-import sys
-
-# To use local package
-sys.path.append('../')
-
 from osgeo import gdal
 
 from tathu.constants import LAT_LON_WGS84

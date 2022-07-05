@@ -8,12 +8,6 @@
 
 """Example for TATHU - Tracking and Analysis of Thunderstorms."""
 
-import sys
-from datetime import datetime
-
-# To use local package
-sys.path.append('../')
-
 from tathu.downloader import goes
 from tathu.progress import TqdmProgress
 

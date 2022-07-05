@@ -8,11 +8,6 @@
 
 """Example for TATHU - Tracking and Analysis of Thunderstorms."""
 
-import sys
-
-# To use local package
-sys.path.append('../')
-
 import matplotlib.pyplot as plt
 import numpy as np
 

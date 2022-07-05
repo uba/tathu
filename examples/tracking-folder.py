@@ -9,10 +9,6 @@
 """Example for TATHU - Tracking and Analysis of Thunderstorms."""
 
 import glob
-import sys
-
-# To use local package
-sys.path.append('../')
 
 from osgeo import gdal
 
