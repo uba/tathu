@@ -6,9 +6,7 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
-from mpl_toolkits.basemap import Basemap
-
-from tathu.tracking.visualizer import MapView
+from tathu.visualizer import MapView
 
 class Outputter(object):
     """
