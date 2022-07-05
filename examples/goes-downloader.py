@@ -8,6 +8,8 @@
 
 """Example for TATHU - Tracking and Analysis of Thunderstorms."""
 
+from datetime import datetime
+
 from tathu.downloader import goes
 from tathu.progress import TqdmProgress
 
