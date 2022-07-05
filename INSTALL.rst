@@ -8,7 +8,12 @@
 Installation
 ============
 
-We recommend `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ to install and use the TATHU package.
+We recommend `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_  and ``conda-forge`` channel to install necessary dependencies and use the TATHU package.
+
+Add ``conda-forge`` channel and adjust ``channel_priority`` to ``strict``::
+
+    conda config --add channels conda-forge
+    conda config --set channel_priority strict
 
 Clone the TATHU Repository::
 
