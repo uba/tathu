@@ -92,6 +92,6 @@ def getProducts(bucket):
     fs = s3fs.S3FileSystem(anon=True)
     products = []
     for p in fs.ls(bucket):
-        if p.find('.index.html') == -1 and p.find('.pdf') == -1:
+        if p.find('.html') == -1 and p.find('.pdf') == -1:
             products.append(p.replace(bucket, ''))
     return products
