@@ -49,6 +49,19 @@ setup_requires = [
 ]
 
 install_requires = [
+    'aenum',
+    'cartopy',
+    'netcdf4',
+    'opencv',
+    'pathos',
+    'psycopg2',
+    'pyproj',
+    'rasterstats',
+    'rtree',
+    's3fs',
+    'scikit-image',
+    'scipy',
+    'tqdm'
 ]
 
 packages = find_packages()
