@@ -1,0 +1,33 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: tathu
+  version: {{ data['version'] }}
+
+source:
+  path: ../
+  
+build:
+  script: {{ PYTHON }} -m pip install --no-deps --ignore-installed -vv .
+  noarch: python
+
+requirements:
+  host:
+    - python
+    - pip
+  run:
+    - python
+    # dependencies are defined in setup.py
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+
+test:
+  imports:
+    - tathu
+
+about:
+  home: https://github.com/uba/tathu
+  summary: Python package for tracking and analyzing the life cycle of convective systems.
+  license: {{ data.get('license') }}
+  license_file: LICENSE
