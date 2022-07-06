@@ -6,11 +6,12 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
-import datetime
 import os
 from itertools import chain
 
 import s3fs
+
+from tathu.utils import generateListOfDays
 
 # Define S3 Buckets
 BUCKETS = {
@@ -21,11 +22,6 @@ BUCKETS = {
 def isChannelSeparated(product):
     '''This function verifies if the given product is separeted by channels.'''
     return 'L1b-Rad' in product or 'L2-CMI' in product
-
-def generateListOfDays(start, end):
-    '''This function returns all-days between given two dates.'''
-    delta = end - start
-    return [start + datetime.timedelta(i) for i in range(delta.days + 1)]
 
 def download(bucket, products, start, end, hours, channels, output, progress=None):
     # Connection with S3 GOES AWS file system

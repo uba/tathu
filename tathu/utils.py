@@ -9,7 +9,7 @@
 import os
 import re
 import time
-from datetime import datetime
+import datetime
 
 import numpy as np
 from osgeo import gdal, gdal_array
@@ -59,6 +59,53 @@ def getExtent(gt, shape):
     ury = gt[3]
     return (llx, lly, urx, ury)
 
+def generateListOfDays(start, end):
+    '''This function returns all-days between given two dates.'''
+    delta = end - start
+    return [start + datetime.timedelta(i) for i in range(delta.days + 1)]
+
+def extractPeriods(files, timeout, regex='\d{12}', format='%Y%m%d%H%M'):
+    previous_time = None; result = []; period = []
+    for path in files:
+        # Get current date/time
+        current_time = file2timestamp(path, regex, format)
+        
+        # Initialize, if necessary
+        if previous_time is None:
+            previous_time = current_time
+
+        # Compute elapsed time
+        elapsed_time = current_time - previous_time
+
+        if elapsed_time.seconds > timeout * 60:
+            result.append(period)
+            period = []
+            previous_time = None
+        else:
+            period.append(path)
+            previous_time = current_time
+
+    result.append(period)
+    
+    return result
+
+
+def file2timestamp(path, regex='\d{12}', format='%Y%m%d%H%M'):
+    '''
+    This function extracts timestamp based on the given full-path file.
+    '''
+    # Extract filename
+    filename = os.path.basename(path)
+
+    # Extract date strings
+    dates_strings = re.findall(regex, filename)
+
+    for s in dates_strings:
+        # Build date object
+        date = datetime.datetime.strptime(s, format)
+        # Return now. Detail: considering first found date
+        return date
+
 def array2raster(array, extent, srs=LAT_LON_WGS84, nodata=None, output='', driver='MEM'):
     # Get array dimension and data type
     nlines = array.shape[0]
@@ -87,22 +134,6 @@ def array2raster(array, extent, srs=LAT_LON_WGS84, nodata=None, output='', drive
     band.FlushCache()
 
     return raster
-
-def file2timestamp(path, regex='\d{12}', format='%Y%m%d%H%M'):
-    '''
-    This function extracts timestamp based on the given full-path file.
-    '''
-    # Extract filename
-    filename = os.path.basename(path)
-
-    # Extract date strings
-    dates_strings = re.findall(regex, filename)
-
-    for s in dates_strings:
-        # Build date object
-        date = datetime.strptime(s, format)
-        # Return now. Detail: considering first found date
-        return date
 
 def getGeoInfoFromCTL(path):
     '''
