@@ -10,36 +10,36 @@ Installation
 
 We recommend **Miniconda** and ``conda-forge`` channel to install necessary dependencies and use the TATHU package.
 
-1. First, install  `Miniconda <https://docs.conda.io/en/latest/miniconda.html#latest-miniconda-installer-links>`_.
+#. First, install  `Miniconda <https://docs.conda.io/en/latest/miniconda.html#latest-miniconda-installer-links>`_.
 
-2. Add ``conda-forge`` channel and adjust ``channel_priority`` to ``strict``::
+#. Add ``conda-forge`` channel and adjust ``channel_priority`` to ``strict``::
 
     conda config --add channels conda-forge
     conda config --set channel_priority strict
 
-3. Clone the TATHU Repository::
+#. Clone the TATHU Repository::
 
     git clone https://github.com/uba/tathu.git
     
-4. Go to the source code folder::
+#. Go to the source code folder::
 
     cd tathu
     
-5. Create a new environment with all necessary dependencies::
+#. Create a new environment with all necessary dependencies::
 
     conda env create -f env.yml
     
-6. Active the created environment (``env-tathu``)::
+#. Active the created environment (``env-tathu``)::
 
     conda activate env-tathu
 
-7. Install TATHU package::
+#. Install TATHU package::
 
     python -m pip install --no-deps .
     or
     python -m pip install --no-deps -e . # develop mode
     
-8. Verify installation::
+#. Verify installation::
 
     python
     import tathu
