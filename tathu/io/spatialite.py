@@ -272,8 +272,8 @@ class Loader(object):
                 date = row[0]
 
             cur.close()
-
-            return date
+            
+            return datetime.strptime(date, format)
 
         except sqlite3.Error as e:
             print(e)
