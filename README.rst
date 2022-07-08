@@ -32,7 +32,12 @@ TATHU - Tracking and Analysis of Thunderstorms
 About
 =====
 
-TATHU is a Python package for tracking and analyzing the life cycle of Convective Systems (CS).
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-animation.gif
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-animation.gif
+    :width: 300
+    :alt: CS animation.
+    
+TATHU is a Python package for tracking and analyzing the life cycle of **Convective Systems (CS)**.
 
 The package provides a modular and extensible structure, supports different types of geospatial data and proposes the use of **Geoinformatics
 techniques** and **spatial databases** in order to aid in the analysis and computational representation of the CS.
@@ -60,7 +65,7 @@ CS have a spatio-temporal behavior: they originate in a specific geographic loca
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-evolution-en.jpg
     :width: 600
     :alt: CS and spatio-temporal behavior.
-
+    
 The general steps involved for automatic monitoring the CS are:
 
 .. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-methodology-en.jpg
