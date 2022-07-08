@@ -99,6 +99,19 @@ Thus, four different entities are used:
 * **Tracker**: this interface aims to tracking the CS (i.e. **associate in time** the different elements detected in each observation). The abstract method takes as parameters two ``lists`` containing ``ConvectiveSystem`` of different time instants - ``previous`` and ``current``. As an example, the association can be performed from the topological relationship between the CS and the analysis of the intersection areas - ``OverlapAreaTracker``;
 * **Forecaster**: this interface is built to provide predictions for the CS. One option is to consider a conservative movement, based only on the current speed of the system - ``ConservativeForecaster``.
 
+Pseudocode for detection, characterization, tracking and forecast of CS using the abstract interfaces:
+
+.. code-block:: python
+
+    images = load()
+    previous = None
+    for each image in images:
+        systems = detector.detect(images[i])
+        descriptor.describe(systems)
+        tracker.track(previous, systems)
+        forecaster.forecast(previous, systems)
+        previous = systems
+    
 From Theory to Practice
 =======================
 
