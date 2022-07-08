@@ -37,6 +37,8 @@ TATHU is a Python package for tracking and analyzing the life cycle of Convectiv
 The package provides a modular and extensible structure, supports different types of geospatial data and proposes the use of **Geoinformatics
 techniques** and **spatial databases** in order to aid in the analysis and computational representation of the CS.
 
+In addition, the package presents a conceptual model for defining the problem using abstract interfaces.
+
 .. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tathu-structure.png
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tathu-structure.png
     :width: 800
