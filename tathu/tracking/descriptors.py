@@ -10,7 +10,6 @@ import itertools
 import multiprocessing
 
 from affine import Affine
-from osgeo import gdal
 from pathos.multiprocessing import ProcessingPool
 from rasterstats import zonal_stats
 
