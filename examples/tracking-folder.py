@@ -39,6 +39,9 @@ minarea = area2degrees(minarea)
 # Define overlap area criterion
 overlapAreaCriterion = 0.1 # 10%
 
+# Attributes that will be computed (nae is normalized area expansion)
+attrs = ['min', 'mean', 'std', 'count', 'nae']
+
 def detect(path):
     # Extract timestamp
     timestamp = file2timestamp(path, regex=goes16.DATE_REGEX, format=goes16.DATE_FORMAT)
@@ -46,7 +49,8 @@ def detect(path):
     print('Processing', timestamp)
     
     # Remap channel to 2km
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84, 'HDF5', progress=gdal.TermProgress_nocb)
+    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84,
+        'HDF5', progress=gdal.TermProgress_nocb)
     
     # Create detector
     detector = detectors.LessThan(threshold, minarea)
@@ -64,22 +68,25 @@ def detect(path):
     # Describe systems (stats)
     descriptor.describe(grid, systems)
 
+    for s in systems:
+        s.attrs['nae'] = 0
+
     grid = None
 
     return systems
 
 def main():
     # Base directory
-    images = '../data/*.nc'
+    images = '../data/noaa-goes16/**/*.nc'
 
     # Get files
-    files = sorted(glob.glob(images))
+    files = sorted(glob.glob(images, recursive=True))
 
     # Detect first systems
     current = detect(files[0])
 
     # Create database connection
-    db = spatialite.Outputter('systems-db.sqlite', 'systems', ['min', 'mean', 'std', 'count'])
+    db = spatialite.Outputter('systems-db.sqlite', 'systems', attrs)
 
     # Save to database
     db.output(current)
@@ -98,6 +105,10 @@ def main():
         # Let's track!
         t = trackers.OverlapAreaTracker(previous, strategy=strategy)
         t.track(current)
+
+        # Compute normalized area expansion attribute
+        descriptor = descriptors.NormalizedAreaExpansionDescriptor()
+        descriptor.describe(previous, current)
         
         # Save to database
         db.output(current)
