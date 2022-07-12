@@ -13,12 +13,13 @@ class Outputter(object):
     """
     This class can be used to export tracking results to CSV files.
     """
-    def __init__(self, path, writeHeader=True, delimiter=',', outputGeom=False, outputCentroid=False):
+    def __init__(self, path, writeHeader=True, delimiter=',', outputGeom=False, outputCentroid=False, precision=4):
         self.path = path
         self.writeHeader = writeHeader
         self.delimiter = delimiter
         self.outputGeom = outputGeom
         self.outputCentroid = outputCentroid
+        self.precision = precision
 
     def output(self, systems):
         # Systems is empty?
@@ -74,8 +75,11 @@ class Outputter(object):
             if self.outputCentroid:
                 sdic['centroid'] = system.geom.Centroid().ExportToWkt()
 
-            # Add numeric attributes
+            # Add numeric attributes and ajust float precision
             sdic.update(system.attrs)
+            for attr in system.attrs:
+                if isinstance(sdic[attr], float):
+                    sdic[attr] = round(sdic[attr], self.precision)
 
             return sdic
 
