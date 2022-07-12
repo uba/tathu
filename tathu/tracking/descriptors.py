@@ -155,3 +155,29 @@ class ConvectiveCellsDescriptor():
             ncells = {'ncells' : len(overlapCells)}
             # Add atribute to system
             sys.attrs.update(ncells)
+
+class NormalizedAreaExpansionDescriptor():
+    '''
+    This class implements a convective system descriptor
+    that computes the normalized area expansion.
+    '''
+    def __init__(self):
+        pass
+
+    def describe(self, previous, current):
+        names = [s.name for s in previous]
+        for current_system in current:
+            try:
+                # Get associated system
+                previous_system = previous[names.index(current_system.name)]
+                # Get needed attributes
+                past_size = previous_system.attrs['count']
+                current_size = current_system.attrs['count']
+                # Compute time-elapsed
+                delta_time = (current_system.timestamp - previous_system.timestamp).total_seconds()
+                # NAE (normalized area expansion) = 1/A * (dA/dt)
+                nae = ((current_size - past_size))/(current_size * delta_time)
+                # Store
+                current_system.attrs['nae'] = nae
+            except ValueError:
+                pass
