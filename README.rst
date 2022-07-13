@@ -86,7 +86,7 @@ The entities of the model are:
     :alt: Entities.
 
 Basically, a geospatial database contains the observed elements of interest, represented by the ``ConvectiveSystem`` class.
-This class has at least one spatial attribute, ``geom``, which indicates the geographic limits of the system, and n other attributes, ``fields``.
+This class has an identifier, ``uuid``, at least one spatial attribute, ``geom``, which indicates the geographic limits of the system, and n other attributes, ``fields``.
 Thus, four different entities are used:
 
 * **Detector**: interface for detecting the CS present at a given time. This interface takes an image as parameter and should return a ``list`` of ``ConvectiveSystem`` as a result. For each element, the ``geom`` attribute is defined. As an example, detection can be performed from a thresholding operation, i.e. ``ThresholdDetector``;
