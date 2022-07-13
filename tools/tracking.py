@@ -54,8 +54,13 @@ def detect(path, date_regex, date_format, extent, resolution, threshold,
 
         # Create convective cell descriptor
         descriptor = descriptors.ConvectiveCellsDescriptor(threshold_cc, minarea_cc)
+
         # Describe systems (convective cell)
         descriptor.describe(grid, systems)
+
+        # Add normalized area expansion attribute
+        for s in systems:
+            s.attrs['nae'] = 0
 
         grid = None
 
@@ -89,6 +94,10 @@ def track(files, date_regex, date_format, extent, resolution, threshold, minarea
             t = trackers.OverlapAreaTracker(previous, strategy=strategy)
             t.track(current)
             
+            # Compute normalized area expansion attribute, if requested
+            descriptor = descriptors.NormalizedAreaExpansionDescriptor()
+            descriptor.describe(previous, current)
+
             # Save to output
             outputter.output(current)
             
@@ -131,6 +140,7 @@ def main(config):
 
     # Columns
     columns = stats.copy()
+    columns.append('nae')
     columns.append('ncells')
     
     # Get files
