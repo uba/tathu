@@ -6,12 +6,20 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
+import gzip
+import os
+
 import numpy as np
 
 from tathu.utils import array2raster
 
 def read(path, nlines, ncols, dtype=np.int16):
-    array = np.fromfile(path, dtype, nlines * ncols)
+    _, ext = os.path.splitext(path)
+    if ext.lower() == '.gz':
+        with gzip.open(path, 'rb') as f:
+            array = np.frombuffer(f.read(), dtype=dtype)
+    else:
+        array = np.fromfile(path, dtype, nlines * ncols)
     return array.reshape((nlines, ncols))
 
 def binary2raster(path, extent, nlines, ncols, dtype, ctype=None, scale=1.0, offset=0.0):
