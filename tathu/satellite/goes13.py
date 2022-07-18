@@ -41,13 +41,11 @@ def sat2grid(path, extent=None, resolution=4, autoscale=True, progress=None):
 
     # Raster info
     dtype = grid.GetRasterBand(1).DataType
-    print(dtype)
     fillValue = grid.GetRasterBand(1).GetNoDataValue()
 
     # Compute grid dimension
     sizex = int(((extent[2] - extent[0]) * KM_PER_DEGREE)/resolution)
     sizey = int(((extent[3] - extent[1]) * KM_PER_DEGREE)/resolution)
-    print(sizex, sizey)
 
     # Create result
     remapped = memDriver.Create('grid', sizex, sizey, 1, dtype)
