@@ -10,6 +10,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.shapereader as shpreader
 import matplotlib.animation as animation
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
@@ -293,3 +294,78 @@ class AnimationMap(animation.TimedAnimation):
         '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
         RGB color; the keyword argument name must be a standard mpl colormap name.'''
         return plt.cm.get_cmap(name, n)
+
+class AnimationMapDatabase(animation.TimedAnimation):
+    def __init__(self, db, extent, images, timestamps):
+        self.db = db
+        self.extent = extent
+        self.images = images
+        self.timestamps = timestamps
+
+        fig = plt.figure()
+
+        # Adjust for cartopy format
+        self.extent = [self.extent[0], self.extent[2],
+            self.extent[1], self.extent[3]]
+
+        # SRS
+        self.crs = ccrs.PlateCarree()
+
+        # Create map
+        self.map = plt.axes(projection=self.crs)
+        self.map.set_extent(self.extent, crs=self.crs)
+
+        # Draw grids
+        gl = self.map.gridlines(draw_labels=True, linewidth=0.25, linestyle='--', color='k')
+        gl.top_labels = False
+        gl.right_labels = False
+
+        self.array = self.map.imshow(self.images[0].ReadAsArray(), transform=self.crs,
+            cmap='Greys', extent=self.extent)
+
+        self.colors = {
+            'SPONTANEOUS_GENERATION': 'green',
+            'MERGE': 'blue',
+            'SPLIT': 'yellow',
+            'CONTINUITY': 'red'
+        }
+
+        # Add legend
+        patchList = []
+        for key in self.colors:
+            data_key = mpatches.Patch(color=self.colors[key], label=key)
+            patchList.append(data_key)
+
+        plt.legend(handles=patchList, loc='upper right')
+
+        animation.TimedAnimation.__init__(self, fig, interval=500, blit=False, repeat_delay=2000)
+
+    def show(self):
+        plt.show()
+
+    def _draw_frame(self, framedata):
+        # Frame number
+        i = framedata
+
+        # Remove old geometries
+        [p.remove() for p in reversed(self.map.patches)]
+
+        # Update image
+        self.array.set_array(self.images[i].ReadAsArray())
+
+        # Load systems
+        systems = self.db.loadByDate('%Y%m%d%H%M', self.timestamps[i].strftime('%Y%m%d%H%M'), attrs=['nae'])
+
+        # Create polygon graphic
+        for s in systems:
+            lats, lons = extractCoordinates(s.geom)
+            xy = list(zip(lons, lats))
+            poly = Polygon(xy, facecolor='none', edgecolor=self.colors[s.event],
+                alpha=1.0, lw=1.0, label=s.event)
+            self.map.add_patch(poly)
+
+    def new_frame_seq(self):
+        return iter(list(range(len(self.timestamps))))
+
+    def _init_draw(self):
+        pass
