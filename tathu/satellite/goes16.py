@@ -56,7 +56,7 @@ def getProj(path):
 
 def getProjExtent(path):
     nc = Dataset(path, mode='r')
-    H = proj = nc['goes_imager_projection'].perspective_point_height
+    H = nc['goes_imager_projection'].perspective_point_height
     llx = nc.variables['x_image_bounds'][0] * H
     lly = nc.variables['y_image_bounds'][1] * H
     urx = nc.variables['x_image_bounds'][1] * H
