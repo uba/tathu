@@ -49,6 +49,10 @@ class MapView(object):
         if colorbar:
             plt.colorbar(im, orientation='vertical', label=self.clabel)
 
+    def plotSystems(self, systems, facecolor='red', alpha=1.0, edgecolor='k', lw=1.0, centroids=False):
+        polygons = [s.geom for s in systems]
+        self.plotPolygons(polygons, facecolor, alpha, edgecolor, lw, centroids)
+
     def plotPolygons(self, polygons, facecolor='red', alpha=1.0, edgecolor='k', lw=1.0, centroids=False):
         # Centroid coordinates
         x, y = [], []
@@ -296,11 +300,12 @@ class AnimationMap(animation.TimedAnimation):
         return plt.cm.get_cmap(name, n)
 
 class AnimationMapDatabase(animation.TimedAnimation):
-    def __init__(self, db, extent, images, timestamps):
+    def __init__(self, db, extent, images, timestamps, cmap='Greys'):
         self.db = db
         self.extent = extent
         self.images = images
         self.timestamps = timestamps
+        self.cmap = cmap
 
         fig = plt.figure()
 
@@ -320,8 +325,8 @@ class AnimationMapDatabase(animation.TimedAnimation):
         gl.top_labels = False
         gl.right_labels = False
 
-        self.array = self.map.imshow(self.images[0].ReadAsArray(), transform=self.crs,
-            cmap='Greys', extent=self.extent)
+        self.array = self.map.imshow(self.__getArray(self.images[0]),
+            transform=self.crs, cmap=self.cmap, extent=self.extent)
 
         self.colors = {
             'SPONTANEOUS_GENERATION': 'green',
@@ -351,7 +356,7 @@ class AnimationMapDatabase(animation.TimedAnimation):
         [p.remove() for p in reversed(self.map.patches)]
 
         # Update image
-        self.array.set_array(self.images[i].ReadAsArray())
+        self.array.set_array(self.__getArray(self.images[i]))
 
         # Load systems
         systems = self.db.loadByDate('%Y%m%d%H%M', self.timestamps[i].strftime('%Y%m%d%H%M'), attrs=['nae'])
@@ -369,3 +374,9 @@ class AnimationMapDatabase(animation.TimedAnimation):
 
     def _init_draw(self):
         pass
+
+    def __getArray(self, image):
+        if isinstance(image, np.ndarray):
+            return image
+        return image.ReadAsArray()
+
