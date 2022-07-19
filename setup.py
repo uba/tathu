@@ -57,6 +57,7 @@ install_requires = [
     'psycopg2',
     'pyproj',
     'rasterstats',
+    'requests',
     'rtree',
     's3fs',
     'scikit-image',
