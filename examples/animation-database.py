@@ -7,7 +7,6 @@
 #
 
 import glob
-from time import time
 from tathu.constants import LAT_LONG_WGS84_BRAZIL_NORTH_EXTENT
 from tathu.io import spatialite
 from tathu import visualizer
