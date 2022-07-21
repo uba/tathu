@@ -150,7 +150,7 @@ class SystemHistoryView:
                     else:
                         image = self.images[i].ReadAsArray()
 
-                    self.ax.imshow(image, transform=self.crs, extent=self.extent)
+                    self.axes[i].imshow(image, transform=self.crs, extent=self.extent)
 
             # Extract lat/lon
             lats, lons = extractCoordinates(s.geom)
