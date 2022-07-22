@@ -121,6 +121,8 @@ class SystemHistoryView:
         ncols = 6
         n = len(self.family.systems)
         nlines = int(n / ncols + 1)
+        # Define size of figure according to ncols/nlines
+        plt.gcf().set_size_inches(ncols*2, nlines*2, forward=True)
 
         # Create individual plots
         i = 0
@@ -343,6 +345,9 @@ class AnimationMapDatabase(animation.TimedAnimation):
 
         plt.legend(handles=patchList, loc='upper right')
 
+        # Add title
+        self.map.set_title(self.timestamps[0].strftime("%Y-%m-%d %H:%M:%S UTC"))
+
         animation.TimedAnimation.__init__(self, fig, interval=500, blit=False, repeat_delay=2000)
 
     def show(self):
@@ -357,6 +362,9 @@ class AnimationMapDatabase(animation.TimedAnimation):
 
         # Update image
         self.array.set_array(self.__getArray(self.images[i]))
+
+        # Update title
+        self.map.set_title(self.timestamps[i].strftime("%Y-%m-%d %H:%M:%S UTC"))
 
         # Load systems
         systems = self.db.loadByDate('%Y%m%d%H%M', self.timestamps[i].strftime('%Y%m%d%H%M'), attrs=['nae'])
