@@ -89,7 +89,6 @@ def extractPeriods(files, timeout, regex='\d{12}', format='%Y%m%d%H%M'):
     
     return result
 
-
 def file2timestamp(path, regex='\d{12}', format='%Y%m%d%H%M'):
     '''
     This function extracts timestamp based on the given full-path file.
@@ -164,6 +163,58 @@ def getGeoInfoFromCTL(path):
     # Comput extent
     extent = [llx, lly, llx + (ncols * resx), lly + (nlines * resy)]
     return nlines, ncols, extent
+
+def writeFLO(flow, filename):
+    """
+    Write optical flow in Middlebury .flo format.
+    """
+    flow = flow.astype(np.float32)
+    f = open(filename, 'wb')
+    magic = np.array([202021.25], dtype=np.float32)
+    (height, width) = flow.shape[0:2]
+    w = np.array([width], dtype=np.int32)
+    h = np.array([height], dtype=np.int32)
+    magic.tofile(f)
+    w.tofile(f)
+    h.tofile(f)
+    flow.tofile(f)
+    f.close()
+
+def readFLO(path):
+    '''
+    This function reads Optical Flow Middlebury files (.flo).
+    '''
+    f = open(path, 'rb')
+    
+    # Read magic number ("PIEH" in ASCII = float 202021.25)
+    magic = np.fromfile(f, np.float32, count=1)
+
+    if magic != 202021.25:
+        raise Exception('Invalid .flo file') 
+
+    # Read width
+    f.seek(4)
+    w = int(np.fromfile(f, np.int32, count=1))
+    
+    # Read height
+    f.seek(8)
+    h = int(np.fromfile(f, np.int32, count=1))
+    
+    # Read (u,v) coordinates
+    f.seek(12)
+    data = np.fromfile(f, np.float32, count=w*h*2)
+
+    # Close file (.flo)
+    f.close()
+
+    # Reshape data into 3D array (columns, rows, bands)
+    dataM = np.resize(data, (h, w, 2))
+
+    # Extract u and v coordinates
+    u = dataM[:,:,0]
+    v = dataM[:,:,1]
+    
+    return w,h,u,v
 
 class Timer(object):
     def __enter__(self):
