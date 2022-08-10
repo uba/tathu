@@ -348,6 +348,10 @@ class AnimationMapDatabase(animation.TimedAnimation):
         # Add title
         self.map.set_title(self.timestamps[0].strftime("%Y-%m-%d %H:%M:%S UTC"))
 
+        # Plot references
+        self.map.coastlines(linewidth=0.4, linestyle='solid', color='black')
+        self.map.add_feature(cfeature.BORDERS, linewidth=0.4, linestyle='solid', color='black')
+
         animation.TimedAnimation.__init__(self, fig, interval=500, blit=False, repeat_delay=2000)
 
     def show(self):
