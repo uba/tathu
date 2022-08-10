@@ -33,17 +33,17 @@ About
 =====
 
 **TATHU** is a Python package for tracking and analyzing the life cycle of **Convective Systems (CS)**.
-
-.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-animation.gif
-    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-animation.gif
-    :width: 300
+ 
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-radar-nowcasting.gif
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-radar-nowcasting.gif
+    :width: 600
     :alt: CS animation.
-   
+    
 The package provides a modular and extensible structure, supports different types of geospatial data and proposes the use of **Geoinformatics
 techniques** and **spatial databases** in order to aid in the analysis and computational representation of the CS.
 
 In addition, the package presents a conceptual model for defining the problem using abstract interfaces.
-
+   
 Installation
 ============
 
