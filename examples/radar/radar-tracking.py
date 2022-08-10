@@ -18,16 +18,11 @@ from tathu.utils import file2timestamp
 
 ### Setup Parameters ###
 
-# Radar extent and dimensions
-extent = [-50.3701, -18.2131, -45.6527, -13.7188]
-nlines, ncols = 500, 500
-nodata = -99.0
-
 # Threshold value
-threshold = 20 # DBZ
+threshold = 40 # DBZ
 
 # Define minimum area
-minarea = 10 # km^2
+minarea = 9 # km^2
 
 # Convert to degrees^2
 minarea = area2degrees(minarea)
@@ -39,13 +34,16 @@ overlapAreaCriterion = 0.1 # 10%
 attrs = ['min', 'mean', 'std', 'count', 'nae']
 
 def detect(path):
-    # Extract timestamp (cappi_CZ_03000_20170930_1000.dat.gz)
-    timestamp = file2timestamp(path, regex='\\d{8}_\\d{4}', format='%Y%m%d_%H%M')
+    # Extract timestamp
+    timestamp = file2timestamp(path, regex='\\d{12}', format='%Y%m%d%H%M')
     
     print('Processing', timestamp)
-    
+
+    # Try get associated radar
+    geo = radar.getGeoSpatialInfo(path)
+
     # Remap channel to 2km
-    grid = radar.read(path, extent, nlines, ncols)
+    grid = radar.read(path, geo['extent'], geo['nlines'], geo['ncols'])
     
     # Create detector
     detector = detectors.GreaterThan(threshold, minarea)
@@ -72,10 +70,10 @@ def detect(path):
 
 def main():
     # Data directory
-    dir = '../data/radar/'
+    dir = '../../data/radar/sroque-case'
 
     # Search images
-    query = dir + '/cappi*'
+    query = dir + '/R*_*.raw'
 
     # Get files
     files = sorted(glob.glob(query, recursive=True))

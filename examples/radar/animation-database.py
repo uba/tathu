@@ -15,11 +15,6 @@ from tathu.io import spatialite
 from tathu.radar import radar
 from tathu.utils import file2timestamp
 
-# Radar extent and dimensions
-extent = [-50.3701, -18.2131, -45.6527, -13.7188]
-nlines, ncols = 500, 500
-nodata = -99.0
-
 # Setup informations to load systems from database
 dbname = 'systems-radar-db.sqlite'
 table = 'systems'
@@ -28,24 +23,28 @@ table = 'systems'
 db = spatialite.Loader(dbname, table)
 
 # Data directory
-dir = '../../data/radar'
+dir = '../../data/radar/sroque-case'
 
 # Search images
-query = dir + '\**\cappi*'
+query = dir + '\R*_*.raw'
 
 # Get files
-files = sorted(glob.glob(query, recursive=True))
+files = sorted(glob.glob(query))
+
+# Radar no-data value
+nodata = -99.0
 
 # Load images
 images, timestamps = [], []
 for path in files:
-    array = radar.read(path, extent, nlines, ncols).ReadAsArray()
+    geo = radar.getGeoSpatialInfo(path)
+    array = radar.read(path, geo['extent'], geo['nlines'], geo['ncols']).ReadAsArray()
     array = np.ma.masked_where(array == nodata, array)
     images.append(array)
-    timestamps.append(file2timestamp(path, regex='\\d{8}_\\d{4}', format='%Y%m%d_%H%M'))
+    timestamps.append(file2timestamp(path, regex='\\d{12}', format='%Y%m%d%H%M'))
 
 # Animation
-view = visualizer.AnimationMapDatabase(db, extent, images, timestamps, cmap='rainbow')
+view = visualizer.AnimationMapDatabase(db, geo['extent'], images, timestamps, cmap='rainbow')
 
 # Save animation to file?
 saveAnimation = True
