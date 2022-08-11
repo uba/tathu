@@ -124,7 +124,6 @@ class MultiThresholdDetector(object):
 
         # For each threshold layer
         for i in range(1, len(self.thresholds)):
-
             # Get current threshold
             layerT = self.thresholds[i]
 
@@ -139,7 +138,6 @@ class MultiThresholdDetector(object):
 
             # For each system, associate the layer
             for sys in systems:
-
                 # Get overlap cells
                 overlapLayers = manager.getSystemsFromSystem(sys)
 
@@ -221,3 +219,48 @@ class WatershedDetector(object):
             systems.append(ConvectiveSystem(p))
 
         return systems
+
+class RangeThresholdDetector(object):
+    '''
+    This class implements a convective system detector that uses
+    thresholding operation based on a given range [min, max].
+    '''
+    def __init__(self, min, max, minarea=None):
+        self.min = min         # Threshold min value used by the detector.
+        self.max = max         # Threshold max value used by the detector.
+        self.minarea = minarea # Minimum area used to define a convective system.
+
+    def detect(self, image):
+        # Get image data
+        data = image.ReadAsArray()
+
+        # Thresholding values
+        # Note: by exclusion. i.e. keep values that obey the threshold restrictions
+        data[data < self.min] = 0
+        data[data > self.max] = 0
+        
+        # Verify no-data
+        nodata = image.GetRasterBand(1).GetNoDataValue()
+
+        if(nodata):
+            data[data == nodata] = 0
+
+        # Find connected components
+        labeled, nObjects = ndimage.label(data)
+
+        # Create Gdal dataset with labeled result in order to apply polygonize operation
+        objects = copyImage(image)
+        objects.GetRasterBand(1).SetNoDataValue(0)
+        objects.GetRasterBand(1).WriteArray(labeled)
+        objects.FlushCache()
+
+        # Polygonize objects
+        polygons = polygonize(objects, self.minarea)
+
+        # Create list of convective systems from polygons
+        systems = []
+        for p in polygons:
+            systems.append(ConvectiveSystem(p))
+
+        return systems
+        
