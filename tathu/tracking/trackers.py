@@ -110,13 +110,34 @@ class IntersectsStrategy(OverlapAreaStrategy):
 
 ### @end-Overlap area strategies. ###
 
+### @begin-System picker strategies. ###
+
+def pick_system_by_max_area(systems):
+    choosen, maxarea = None, 0.0
+    for system in systems:
+        area = system.geom.GetArea()
+        if area > maxarea:
+            choosen, maxarea = system, area
+    return choosen
+
+def pick_system_by_max_intensity(systems):
+    choosen, maxval = None, 0.0
+    for system in systems:
+        val = system.raster.max()
+        if val > maxval:
+            choosen, maxval = system, val
+    return choosen
+
+### @end-System picker strategies. ###
+
 class OverlapAreaTracker(object):
     '''
     This class implements a convective system tracker that uses the overlap area criterion.
     '''
-    def __init__(self, previous, strategy):
+    def __init__(self, previous, strategy, picker=pick_system_by_max_area):
         self.previous = previous # Set of previous systems at time.
         self.strategy = strategy # The overlap area strategy that will be used.
+        self.picker = picker     # System picker strategy that will be used.
 
     def track(self, current):
         # Indexing previous convective cells
@@ -152,13 +173,13 @@ class OverlapAreaTracker(object):
 
             # case len(relationships) == 0 -> It is SPONTANEOUS_GENERATION
 
-            if(len(relationships) == 1):
+            if len(relationships) == 1:
                 # It is CONTINUITY or SPLIT
                 # Get previous system name (identifier)
                 name = relationships[0].name
 
                 # First time that it is used?
-                if(name not in splits):
+                if name not in splits:
                     # If yes, it is CONTINUITY relationship
                     sys.event = LifeCycleEvent.CONTINUITY
                     # Store for future adjustments, if necessary
@@ -172,7 +193,7 @@ class OverlapAreaTracker(object):
                     # Store for future adjustments, if necessary
                     splits[name].append(sys)
 
-            elif(len(relationships) >= 2):
+            elif len(relationships) >= 2:
                 # It is MERGE
                 sys.event = LifeCycleEvent.MERGE
                 # Store
@@ -187,7 +208,7 @@ class OverlapAreaTracker(object):
             # Get system on current time based on past time
             systems = splits[name]
             # It is CONTINUITY
-            if(len(systems) == 1):
+            if len(systems) == 1:
                 systems[0].name = name
                 event_analysis[name] = [systems[0]]
             else:
@@ -216,42 +237,20 @@ class OverlapAreaTracker(object):
                 maxarea = 0.0
                 for i in range(0, len(systems)):
                     area = systems[i].geom.GetArea()
-                    if(area > maxarea):
+                    if area > maxarea:
                         choosen = i
                         maxarea = area
                         systems[i].name = key
 
                 for i in range(0, len(systems)):
-                    if(i != choosen):
+                    if i != choosen:
                         current.remove(systems[i])
 
     def __assignIdentifier(self, name, relations):
-        '''
-        This methods assigns identifier using maximum area criterion.
-        '''
-        choosen = None
-        maxarea = 0.0
-        for member in relations:
-            area = member.geom.GetArea()
-            if(area > maxarea):
-                choosen = member
-                maxarea = area
-
-        # Baptized!
-        choosen.name = name
-
+        choosen = self.picker(relations)
+        choosen.name = name # Baptized!
         return choosen
 
     def __getIdentifier(self, relations):
-        '''
-        This methods returns the identifier using maximum area criterion.
-        '''
-        choosen = None
-        maxarea = 0.0
-        for member in relations:
-            area = member.geom.GetArea()
-            if(area > maxarea):
-                choosen = member
-                maxarea = area
-
+        choosen = self.picker(relations)
         return choosen.name
