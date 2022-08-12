@@ -9,12 +9,14 @@
 import itertools
 import multiprocessing
 
+import cv2
 from affine import Affine
 from pathos.multiprocessing import ProcessingPool
 from rasterstats import zonal_stats
 
 from tathu.tracking.detectors import ThresholdDetector, ThresholdOp
 from tathu.tracking.system import ConvectiveSystemManager
+from tathu.utils import array2raster, getExtent
 
 class StatisticalDescriptor(object):
     '''
@@ -180,3 +182,32 @@ class NormalizedAreaExpansionDescriptor():
                 current_system.attrs['nae'] = nae
             except ValueError:
                 pass
+
+class OpticalFlowDescriptor():
+    '''
+    This class implements a descriptor that computes the median optical flow for each system.
+    '''
+    def __init__(self, previousImage):
+        self.previousImage = previousImage # The previous image used to detect the systems.
+
+    def describe(self, image, systems):
+        # Compute optical flow
+        # TODO: add calcOpticalFlowFarneback parameters to OpticalFlowDescriptor constructor as option.
+        flow = cv2.calcOpticalFlowFarneback(self.previousImage.ReadAsArray(),
+            image.ReadAsArray(), None, 0.5, 3, 15, 3, 5, 1.2, 0)
+
+        # Get image extent
+        extent = getExtent(image.GetGeoTransform(), (image.RasterYSize, image.RasterXSize))
+
+        # Extract vectors and convert do GDAL Dataset
+        u = array2raster(flow[:,:,0], extent)
+        v = array2raster(flow[:,:,1], extent)
+
+        ## Use StatisticalDescriptor to compute median (u,v) components for each system ##
+        # u component
+        descriptor = StatisticalDescriptor(stats=['mean'], prefix='u_')
+        descriptor.describe(u, systems)
+        # v component
+        descriptor = StatisticalDescriptor(stats=['mean'], prefix='v_')
+        descriptor.describe(v, systems)
+        
