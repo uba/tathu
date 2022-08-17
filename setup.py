@@ -51,6 +51,7 @@ setup_requires = [
 install_requires = [
     'aenum',
     'cartopy',
+    'geopandas',
     'netcdf4',
     'opencv',
     'pathos',
