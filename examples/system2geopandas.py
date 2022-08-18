@@ -8,12 +8,10 @@
 
 """Example for TATHU - Tracking and Analysis of Thunderstorms."""
 
-import geopandas
 import matplotlib.pyplot as plt
-import pandas as pd
 from osgeo import gdal
 
-from tathu.geometry.transform import ogr2shapely
+from tathu.io import dataframe
 from tathu.satellite import goes13
 from tathu.tracking import descriptors, detectors
 from tathu.tracking.utils import area2degrees
@@ -69,28 +67,6 @@ def detect(path):
 
     return systems
 
-def systems2geopandas(systems):
-    # Create dataframe with fixed attributes
-    df = pd.DataFrame({
-        'name': [str(s.name) for s in systems],
-        'timestamp': [s.timestamp for s in systems],
-        'event': [str(s.event) for s in systems]
-    })
-    # Add dynamic attributes
-    for attr in systems[0].attrs:
-        df[attr] = [s.attrs[attr] for s in systems]
-        
-    # Add geometry
-    df['geom'] = [ogr2shapely(s.geom) for s in systems]
-
-    # Creat geo-dataframe
-    gdf = geopandas.GeoDataFrame(df, geometry='geom')
-
-    # Adjust SRS
-    gdf = gdf.set_crs('epsg:4326')
-
-    return gdf
-
 # Define images that will be used
 img = '../data/goes13-dissm/S10236964_201704080000.gz'
 
@@ -98,12 +74,13 @@ img = '../data/goes13-dissm/S10236964_201704080000.gz'
 systems = detect(img)
 
 # Convert result to geopandas dataframe
-gdf = systems2geopandas(systems)
-print(gdf.head())
+outputter = dataframe.Outputter()
+outputter.output(systems)
+print(outputter.gdf.head())
 
 # Export dataframe to geo-package
-gdf.to_file('systems.gpkg', driver='GPKG', layer='systems')
+outputter.gdf.to_file('systems.gpkg', driver='GPKG', layer='systems')
 
 # Show result
-gdf.plot(figsize=(5, 5), alpha=0.5, edgecolor='k')
+outputter.gdf.plot(figsize=(5, 5), alpha=0.5, edgecolor='k')
 plt.show()
