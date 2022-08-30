@@ -34,7 +34,7 @@ class Envelope(object):
         self.ury = np.finfo().min
 
     def isValid(self):
-        if (self.llx <= self.urx) and (self.lly <= self.ury):
+        if self.llx <= self.urx and self.lly <= self.ury:
             return True
         else:
             return False

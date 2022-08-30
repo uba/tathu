@@ -41,19 +41,19 @@ class ThresholdDetector(object):
 
         # Thresholding values
         # Note: by exclusion. i.e. keep values that obey the threshold restriction
-        if(self.op is ThresholdOp.LESS_THAN):
+        if self.op is ThresholdOp.LESS_THAN:
             data[data >= self.value] = 0
-        elif(self.op is ThresholdOp.LESS_THAN_OR_EQUAL_TO):
+        elif self.op is ThresholdOp.LESS_THAN_OR_EQUAL_TO:
             data[data > self.value] = 0
-        elif(self.op is ThresholdOp.GREATER_THAN):
+        elif self.op is ThresholdOp.GREATER_THAN:
             data[data <= self.value] = 0
-        elif(self.op is ThresholdOp.GREATER_THAN_OR_EQUAL_TO):
+        elif self.op is ThresholdOp.GREATER_THAN_OR_EQUAL_TO:
             data[data < self.value] = 0
             
         # Verify no-data
         nodata = image.GetRasterBand(1).GetNoDataValue()
 
-        if(nodata):
+        if nodata:
             data[data == nodata] = 0
 
         # Find connected components
@@ -173,19 +173,19 @@ class WatershedDetector(object):
         data = image.ReadAsArray()
 
         # Thresholding values
-        if(self.op is ThresholdOp.LESS_THAN):
+        if self.op is ThresholdOp.LESS_THAN:
             data[data > self.value ] = 0
-        elif(self.op is ThresholdOp.LESS_THAN_OR_EQUAL_TO):
+        elif self.op is ThresholdOp.LESS_THAN_OR_EQUAL_TO:
             data[data >= self.value] = 0
-        elif(self.op is ThresholdOp.GREATER_THAN):
+        elif self.op is ThresholdOp.GREATER_THAN:
             data[data < self.value ] = 0
-        elif(self.op is ThresholdOp.GREATER_THAN_OR_EQUAL_TO):
+        elif self.op is ThresholdOp.GREATER_THAN_OR_EQUAL_TO:
             data[data <= self.value] = 0
 
         # Verify no-data
         nodata = image.GetRasterBand(1).GetNoDataValue()
 
-        if(nodata):
+        if nodata:
             data[data == nodata] = 0
 
         data[data != 0] = 1
@@ -242,7 +242,7 @@ class RangeThresholdDetector(object):
         # Verify no-data
         nodata = image.GetRasterBand(1).GetNoDataValue()
 
-        if(nodata):
+        if nodata:
             data[data == nodata] = 0
 
         # Find connected components

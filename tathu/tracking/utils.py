@@ -32,12 +32,12 @@ def polygonize(image, minArea=None, progress=None):
         # Get polygon representation (detail: using Buffer(0) to fix self-intersections)
         p = feature.GetGeometryRef().Buffer(0)
         # Verify minimum area
-        if(minArea is None):
+        if minArea is None:
             polygons.append(p)
-        elif (p.GetArea() > minArea):
+        elif p.GetArea() > minArea:
             polygons.append(p)
 
     return polygons
 
 def area2degrees(km2):
-    return km2 / (KM_PER_DEGREE * KM_PER_DEGREE)
+    return km2/(KM_PER_DEGREE * KM_PER_DEGREE)

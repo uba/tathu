@@ -61,7 +61,7 @@ class MapView(object):
             lats, lons = extractCoordinates(p)
 
             # Compute centroid, if requested
-            if(centroids):
+            if centroids:
                 centroid = p.Centroid()
                 x.append(centroid.GetX())
                 y.append(centroid.GetY())
@@ -89,7 +89,7 @@ class SystemHistoryView:
         self.images = images
 
         # Image extent
-        if(extent is None):
+        if extent is None:
             self.extent = family.getExtent()
         else:
             self.extent = extent
@@ -133,7 +133,7 @@ class SystemHistoryView:
                 ax.set_extent(self.extent, crs=self.crs)
                 self.axes.append(ax)
                 i += 1
-                if(i == n):
+                if i == n:
                     break
 
     def __plotSystems(self):
@@ -145,9 +145,9 @@ class SystemHistoryView:
         for s in self.family.systems:
             self.__plotReferences(self.axes[i])
 
-            if(self.images is not None):
-                if(self.images[i] is not None):
-                    if(isinstance(self.images[i], np.ndarray)):
+            if self.images is not None:
+                if self.images[i] is not None:
+                    if isinstance(self.images[i], np.ndarray):
                         image = self.images[i]
                     else:
                         image = self.images[i].ReadAsArray()

@@ -63,7 +63,7 @@ class ConvectiveSystem(object):
     def getRelationshipNames(self):
         names = []
         for r in self.relationships:
-            if(r.name != self.name):
+            if r.name != self.name:
                 names.append(str(r.name))
 
         return names
@@ -93,7 +93,7 @@ class ConvectiveSystemFamily(object):
 
     def addSystem(self, system):
         self.systems.append(system)
-        if(system.hasGeom()):
+        if system.hasGeom():
             self.__updateExtent(system.getMBR())
         self.timeIndex[system.timestamp] = system
 
@@ -168,7 +168,7 @@ class ConvectiveSystemManager(object):
         # Final result: i.e. refine candidates (using intersector operator)
         result = []
         for c in candidates:
-            if(geom.Intersects(c.geom)):
+            if geom.Intersects(c.geom):
                 result.append(c)
 
         return result

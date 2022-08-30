@@ -24,7 +24,7 @@ def read(path, nlines, ncols, dtype=np.int16):
 
 def binary2raster(path, extent, nlines, ncols, dtype, ctype=None, scale=1.0, offset=0.0):
     array = read(path, nlines, ncols, dtype)
-    if(ctype and ctype != dtype):
+    if ctype and ctype != dtype:
         # Conversion requested. Transform data type and apply scale/offset
         array = array.astype(ctype)
         array = array * scale + offset
