@@ -162,8 +162,8 @@ class NormalizedAreaExpansionDescriptor():
     This class implements a convective system descriptor
     that computes the normalized area expansion.
     '''
-    def __init__(self):
-        pass
+    def __init__(self, scale=None):
+        self.scale = scale
 
     def describe(self, previous, current):
         names = [s.name for s in previous]
@@ -177,7 +177,12 @@ class NormalizedAreaExpansionDescriptor():
                 # Compute time-elapsed
                 delta_time = (current_system.timestamp - previous_system.timestamp).total_seconds()
                 # NAE (normalized area expansion) = 1/A * (dA/dt)
-                nae = ((current_size - past_size))/(current_size * delta_time)
+                # where A = (current_size + past_size)/2
+                A = (current_size + past_size)/2
+                nae = (current_size - past_size)/(A * delta_time)
+                # Apply scale, if requested
+                if self.scale:
+                    nae = nae * self.scale
                 # Store
                 current_system.attrs['nae'] = nae
             except ValueError:
