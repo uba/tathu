@@ -23,10 +23,11 @@ class StatisticalDescriptor(object):
     This class implements a convective system descriptor that
     defines a set of statistical attributes for each system.
     '''
-    def __init__(self, stats=['min', 'mean', 'std', 'count'], prefix='', rasterOut=False):
+    def __init__(self, stats=['min', 'mean', 'std', 'count'], prefix='', rasterOut=False, is_radar=False):
         self.stats = stats
         self.prefix = prefix
         self.rasterOut = rasterOut
+        self.is_radar = is_radar
 
     def describe(self, image, systems):
         # Get Affine object in order to run zonal_stats
@@ -34,6 +35,8 @@ class StatisticalDescriptor(object):
 
         # Extract values
         values = image.ReadAsArray()
+        if self.is_radar:
+            values = 10 ** (values / 10)
 
         # Get no-data value
         nodata = image.GetRasterBand(1).GetNoDataValue()
@@ -47,7 +50,10 @@ class StatisticalDescriptor(object):
         stats = zonal_stats(wkts, values, stats=self.stats,
                             affine=aff, nodata=nodata,
                             raster_out=self.rasterOut, prefix=self.prefix)
-
+        if self.is_radar:
+            for stat in stats:
+                for k in ["max", "mean", "std"]:
+                    stat[k] = 10 * np.log10(stat[k])
 
         # Each stat for each system
         for sys, stat in zip(systems, stats):
