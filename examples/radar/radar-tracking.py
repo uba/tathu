@@ -31,7 +31,7 @@ minarea = area2degrees(minarea)
 overlapAreaCriterion = 0.1 # 10%
 
 # Attributes that will be computed (nae is normalized area expansion)
-attrs = ['min', 'mean', 'std', 'count', 'nae']
+attrs = ['max', 'mean', 'std', 'count', 'nae']
 
 def detect(path):
     # Extract timestamp
@@ -56,7 +56,7 @@ def detect(path):
         s.timestamp = timestamp
     
     # Create statistical descriptor
-    descriptor = descriptors.StatisticalDescriptor(rasterOut=True)
+    descriptor = descriptors.DBZStatisticalDescriptor(rasterOut=True)
     
     # Describe systems (stats)
     descriptor.describe(grid, systems)

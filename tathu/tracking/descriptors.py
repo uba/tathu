@@ -10,6 +10,7 @@ import itertools
 import multiprocessing
 
 import cv2
+import numpy as np
 from affine import Affine
 from pathos.multiprocessing import ProcessingPool
 from rasterstats import zonal_stats
@@ -48,6 +49,56 @@ class StatisticalDescriptor(object):
                             affine=aff, nodata=nodata,
                             raster_out=self.rasterOut, prefix=self.prefix)
 
+
+        # Each stat for each system
+        for sys, stat in zip(systems, stats):
+            sys.attrs.update(stat)
+
+        if self.rasterOut:
+            for sys in systems:
+                # Extract raster data from attrs dic
+                sys.raster = sys.attrs.pop(self.prefix + 'mini_raster_array')
+                sys.nodata = sys.attrs.pop(self.prefix + 'mini_raster_nodata')
+                sys.geotransform = sys.attrs.pop(self.prefix + 'mini_raster_affine').to_gdal()
+
+        return systems
+
+class DBZStatisticalDescriptor(object):
+    '''
+    This class implements a convective system descriptor that
+    defines a set of statistical attributes for each system.
+    Note: This class uses dBZ radar calculations.
+    '''
+    
+    def __init__(self, stats=['max', 'mean', 'std', 'count'], prefix='', rasterOut=False):
+        self.stats = stats
+        self.prefix = prefix
+        self.rasterOut = rasterOut
+        
+    def describe(self, image, systems):
+        # Get Affine object in order to run zonal_stats
+        aff = Affine.from_gdal(*image.GetGeoTransform())
+        
+        # Extract values
+        values = image.ReadAsArray()
+        values = 10 ** (values / 10)  # Convert to mm^6 m^-3
+        
+        # Get no-data value
+        nodata = image.GetRasterBand(1).GetNoDataValue()
+        
+        #  Create WKT representation for each polygon
+        wkts = []
+        for sys in systems:
+            wkts.append(sys.geom.ExportToWkt())
+
+        # Compute stats for each polygon
+        stats = zonal_stats(wkts, values, stats=self.stats,
+                            affine=aff, nodata=nodata,
+                            raster_out=self.rasterOut, prefix=self.prefix)
+
+        for stat in stats:
+            for k in ['max', 'mean', 'std']:
+                stat[k] = 10 * np.log10(stat[k]) # Convert back to dBZ
 
         # Each stat for each system
         for sys, stat in zip(systems, stats):
