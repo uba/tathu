@@ -19,29 +19,36 @@ from matplotlib.patches import Polygon
 from tathu.geometry.utils import extractCoordinates
 
 class MapView(object):
-    def __init__(self, extent, references=[]):
+    def __init__(self, extent, references=[], clabel='', timestamp=None):
         # Create a new figure
         self.fig = plt.figure()
+        # Get parameters
+        self.clabel = clabel
+        self.timestamp = timestamp
         # Create map
         self.extent = [extent[0], extent[2], extent[1], extent[3]]
         self.crs = ccrs.PlateCarree()
         self.ax = plt.axes(projection=self.crs)
         self.ax.set_extent(self.extent, crs=self.crs)
+        # Setup title, if necessary
+        if self.timestamp:
+            self.ax.set_title('Systems ' + self.timestamp)
         self.references = references
         self.plotReferences()
 
     def plotReferences(self):
-        self.ax.coastlines(linewidth=0.4, linestyle='solid', color='white')
-        self.ax.add_feature(cfeature.BORDERS, linewidth=0.4, linestyle='solid', color='white')
-        gl = self.ax.gridlines(draw_labels=True, linewidth=0.25, linestyle='--', color='k')
+        self.ax.coastlines(linewidth=0.4, linestyle='solid', color='lightgray')
+        self.ax.add_feature(cfeature.BORDERS, linewidth=0.4, linestyle='solid', color='lightgray')
+        gl = self.ax.gridlines(draw_labels=True, linewidth=0.25, linestyle='--', color='gray')
         gl.top_labels = False
         gl.right_labels = False
         for ref in self.references:
             shp = shpreader.Reader(ref).geometries()
-            self.ax.add_geometries(shp, self.crs, linewidth=0.4, facecolor='none', edgecolor='k')
+            self.ax.add_geometries(shp, self.crs, linewidth=0.4, facecolor='none', edgecolor='lightgray')
 
     def plotImage(self, image, cmap=None, vmin=None, vmax=None, colorbar=False):
-        array = image.ReadAsArray()
+        nodata = image.GetRasterBand(1).GetNoDataValue()
+        array = np.ma.masked_equal(image.ReadAsArray(), nodata)
         self.plotArray(array, cmap, vmin, vmax, colorbar)
 
     def plotArray(self, array, cmap=None, vmin=None, vmax=None, colorbar=False):
