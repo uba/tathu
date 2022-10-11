@@ -11,22 +11,15 @@ version: 2
 build:
   os: ubuntu-20.04
   tools:
-      python: mambaforge-4.10
+    python: mambaforge-4.10
   jobs:
-      post_create_environment:
+    post_create_environment:
       - python -m pip install --no-deps .
 
 conda:
-    environment: env.yml
+  environment: env.yml
     
 sphinx:
-    configuration: docs/sphinx/conf.py
+  configuration: docs/sphinx/conf.py
 
 formats: []
-
-python:
-    install:
-        - method: pip
-          path: .
-          extra_requirements:
-              - docs
