@@ -137,8 +137,9 @@ class SystemHistoryView:
             data_key = mpatches.Patch(color=self.colors[key], label=key)
             patchList.append(data_key)
 
-        self.fig.legend(handles=patchList, loc='lower right',
-            ncol=4, bbox_transform=self.fig.transFigure, borderaxespad=0)
+        if self.highlightEvent:
+            self.fig.legend(handles=patchList, loc='lower right',
+                ncol=4, bbox_transform=self.fig.transFigure, borderaxespad=0)
 
     def show(self):
         plt.show()
