@@ -88,7 +88,7 @@ class MapView(object):
         plt.show()
 
 class SystemHistoryView:
-    def __init__(self, family, images=None, extent=None):
+    def __init__(self, family, images=None, extent=None, highlightEvent=True):
         # Systems that will be plotted
         self.family = family
 
@@ -100,6 +100,17 @@ class SystemHistoryView:
             self.extent = family.getExtent()
         else:
             self.extent = extent
+
+        # Colors for system event
+        self.colors = {
+            'SPONTANEOUS_GENERATION': 'green',
+            'MERGE': 'blue',
+            'SPLIT': 'yellow',
+            'CONTINUITY': 'red'
+        }
+
+        # Flag that indicates if plot will highlight system events
+        self.highlightEvent = highlightEvent
 
         # Adjust for cartopy format
         self.extent = [self.extent[0], self.extent[2],
@@ -120,6 +131,15 @@ class SystemHistoryView:
         # Draw!
         self.__plotSystems()
 
+        # Add legend
+        patchList = []
+        for key in self.colors:
+            data_key = mpatches.Patch(color=self.colors[key], label=key)
+            patchList.append(data_key)
+
+        self.fig.legend(handles=patchList, loc='lower right',
+            ncol=4, bbox_transform=self.fig.transFigure, borderaxespad=0)
+
     def show(self):
         plt.show()
 
@@ -135,6 +155,8 @@ class SystemHistoryView:
         i = 0
         self.axes = []
         for lin in range(nlines):
+            if i == n:
+                break
             for col in range(ncols):
                 ax = plt.subplot2grid((nlines, ncols), (lin, col), projection=self.crs)
                 ax.set_extent(self.extent, crs=self.crs)
@@ -171,7 +193,10 @@ class SystemHistoryView:
             lats, lons = extractCoordinates(s.geom.ConvexHull())
 
             # Plot polygon
-            self.__plotPolygon(lats, lons, 'none', 1.0, 1.0, 'red', self.axes[i])
+            color = 'red'
+            if self.highlightEvent:
+                color = self.colors[s.event]
+            self.__plotPolygon(lats, lons, 'none', 1.0, 1.0, color, self.axes[i])
 
             if s.timestamp:
                 self.axes[i].set_title(s.timestamp.strftime('%H:%M') + ' UTC', fontsize=10, va='center')
