@@ -8,33 +8,7 @@
 
 .. _Installation:
 
-Installation
-============
-
-
-Pre-Requirements
-----------------
-
-
-Built Distributions
--------------------
-
-
-Development Installation - GitHub
----------------------------------
-
-
-Clone the Software Repository
-+++++++++++++++++++++++++++++
-
-
-Install TATHU in Development Mode
-++++++++++++++++++++++++++++++++
-
-
-Run the Tests
-+++++++++++++
-
+.. include:: ../../INSTALL.rst
 
 Build the Documentation
 +++++++++++++++++++++++
@@ -42,14 +16,14 @@ Build the Documentation
 
 You can generate the documentation based on Sphinx with the following command::
 
-    python setup.py build_sphinx
+    sphinx-build -b html docs/sphinx/ docs/build/html/
 
 
 The above command will generate the documentation in HTML and it will place it under::
 
-    docs/sphinx/_build/html/
+    docs/build/html/
 
 
 You can open the above documentation in your favorite browser, as::
 
-    firefox docs/sphinx/_build/html/index.html
+    firefox docs/build/html/index.html

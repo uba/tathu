@@ -9,3 +9,195 @@
 Usage
 =====
 
+The set of code snippet below shows how to use the concepts proposed by TATHU package to identify and track CS using satellite imagery (GOES-16).
+
+Use a netCDF file with values measured by ABI/GOES-16, Channel 13, on June 15, 2021 - 00:00 UTC. A geographic region of interest (extent) and a spatial resolution are defined. The remapping is performed from the original satellite projection to a regular grid, with a LatLon/WGS84 coordinate system (EPSG:4326).
+
+.. code-block:: python
+
+    from tathu.constants import LAT_LON_WGS84
+    from tathu.satellite import goes16
+
+    # Path to netCDF GOES-16 file (IR-window) - ("past")
+    path = './data/goes16/ch13/2021/06/ch13_202106150000.nc'
+
+    # Geographic area of regular grid
+    extent = [-100.0, -56.0, -20.0, 15.0]
+
+    # Grid resolution (kilometers)
+    resolution = 2.0
+
+    # Remap
+    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+
+Next, let's detect CS followed by the definition of the statistical attributes. Use of ``detectors.LessThan`` and ``descriptors.StatisticalDescriptor``.
+
+.. code-block:: python
+
+    from tathu.tracking import detectors
+    from tathu.tracking import descriptors
+
+    # Threshold value
+    threshold = 230 # Kelvin
+
+    # Define minimum area
+    minarea = 3000 # km^2
+
+    # Create detector
+    detector = detectors.LessThan(threshold, minarea)
+
+    # Detect systems
+    systems = detector.detect(grid)
+
+    # Create statistical descriptor
+    attrs = ['min', 'mean', 'std', 'count']
+    descriptor = descriptors.StatisticalDescriptor(stats=attrs)
+
+    # Describe systems (stats)
+    descriptor.describe(grid, systems)
+
+Export the result to a CSV file ``systems.csv``:
+
+.. code-block:: python
+
+    from tathu.io import icsv
+    outputter = icsv.Outputter('systems.csv', writeHeader=True)
+    outputter.output(systems)
+
+File preview. Each line represents an CS, which has a unique identifier, the date and other attributes::
+
+    name,timestamp,event,min,mean,count,std
+    c55f99b4-84a4-4b4b-8393-25aaaf85fb75,2022-06-15 00:00:20.400000,SPONTANEOUS_GENERATION,201.8952178955078,217.48695598417407,2022,8.098725295979632
+    dc616f08-e0cd-4a15-87ed-7becc5ab253a,2022-06-15 00:00:20.400000,SPONTANEOUS_GENERATION,201.8952178955078,216.17461281506226,3293,6.3141480994099926
+    ed97d8cc-d4e7-4a52-b686-1763bd0281f1,2022-06-15 00:00:20.400000,SPONTANEOUS_GENERATION,196.67169189453125,219.96122828784118,1209,6.635110324130535
+    e57dccdf-cf36-4f41-9160-840f29a9111e,2022-06-15 00:00:20.400000,SPONTANEOUS_GENERATION,218.91778564453125,224.71936994856722,1361,2.728877257772919
+    37f1de1a-871b-4b5d-b971-48ddb84cd1ed,2022-06-15 00:00:20.400000,SPONTANEOUS_GENERATION,203.6773681640625,212.5015689699793,966,6.889729660848631
+    32a42b28-74a1-4221-912e-c401d9051c88,2022-06-15 00:00:20.400000,SPONTANEOUS_GENERATION,191.32525634765625,209.74939927913496,19976,8.544348809460782
+
+The visualization can be performed based on the following snippet:
+
+.. code-block:: python
+
+    from tathu.tracking.visualizer import MapView
+
+    # Create MapView component
+    m = MapView(extent)
+
+    # Plot grid
+    m.plotImage(grid, cmap='Greys', vmin=180.0, vmax=320.0)
+
+    # Plot systems
+    m.plotSystems(systems, edgecolor='red', centroids=True)
+
+    # Show GUI result
+    m.show()
+
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
+    :alt: Map view component.
+
+The same result can be exported to a database instance with geospatial support, like SpatiaLite and PostGIS:
+
+.. code-block:: python
+
+    from tathu.io import spatialite
+    database = spatialite.Outputter('systems.sqlite', 'systems')
+    database.output(systems)
+
+Once the CS present in the image of June 15, 2021 - 00:00 UTC have been detected, it is now possible to perform the tracking. We use a new image, from the same day, 00:10 UTC. Use of ``trackers.OverlapAreaTracker``.
+
+.. code-block:: python
+
+    # Path to new netCDF GOES-16 file - ("present")
+    path = './data/goes16/ch13/2021/06/ch13_202106150010.nc'
+
+    # Remap
+    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+
+    # Tracking
+    previous = systems
+    # Detect new systems
+    systems = detector.detect(grid)
+
+    from tathu.tracking import trackers
+
+    # Define overlap area criterion
+    overlapAreaCriterion = 0.1 # 10%
+
+    # Create overlap area strategy
+    strategy = trackers.RelativeOverlapAreaStrategy(overlapAreaCriterion)
+
+    # Create tracker entity
+    t = trackers.OverlapAreaTracker(previous, strategy=strategy)
+    t.track(current)
+
+    # Save to database
+    database.output(systems)
+
+Finally, the prediction of CS for future moments can be performed based on the following code fragment. Use of ``forecasters.Conservative``.
+
+.. code-block:: python
+
+    from tathu.tracking import forecasters
+
+    times = [15, 30, 45, 60, 90, 120] # minutes
+
+    # Forecaster entity
+    f = forecasters.Conservative(previous, intervals=times)
+
+    # Forecast result for each time
+    forecasts = f.forecast(current)
+
+Considering that the different CS were detected and stored, the load process can be performed based on the following code snippet:
+
+.. code-block:: python
+
+    from tathu.io import spatialite
+
+    # Setup informations to load systems from database
+    dbname = 'systems.sqlite'
+    table = 'systems'
+
+    # Connect to database
+    db = spatialite.Loader(dbname, table)
+
+    # Get all-systems names
+    names = db.loadNames()
+
+    # Load first system, geometry and attributes
+    family = db.load(names[0], ['min', 'mean', 'std', 'count'])
+
+Other methods can be used to load CS more efficiently, for example: from the duration time, considering a day or a date range, based on a spatial restriction, among others. For more specific cases, it is also possible to perform a query directly to the database using SQL language.
+
+.. code-block:: python
+
+    # Load CS with life-cycle time-duration >= 10 hours
+    systems = db.loadByDuration(10, operator='>=')
+
+    # Load CS with life-cycle time-duration < 1 hours
+    systems = db.loadByDuration(1, operator='<')
+
+    # Load CS from day 26/06/2021
+    systems = db.loadByDay('20210626')
+
+      # Load CS using SQL query
+    systems = db.query('generic query example')
+
+The CS lifecycle can be visualized, where each plot represents an instant of time in the systems life cycle.
+
+.. code-block:: python
+
+    from tathu.tracking import visualizer
+    view = visualizer.SystemHistoryView(family)
+    view.show()
+
+.. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-life-cycle-view.png
+    :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-life-cycle-view.png
+    :width: 800
+    :alt: CS lifecycle view.
+
+Using Your Own Data
++++++++++++++++++++
+
+doc-me!
+
