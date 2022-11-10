@@ -75,9 +75,9 @@ This interface is built to provide predictions for the CS. One option is to cons
 .. code-block:: python
 
     class Forecaster(object):
-        def __init__(self, previous, intervals,):
+        def __init__(self, previous, intervals):
             self.previous = previous
-            self.intervals = intervalds
+            self.intervals = intervals
 
         def forecast(self, current):
             pass
