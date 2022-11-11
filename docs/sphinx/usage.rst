@@ -197,7 +197,51 @@ The CS lifecycle can be visualized, where each plot represents an instant of tim
     :alt: CS lifecycle view.
 
 Using Your Own Data
-+++++++++++++++++++
+-------------------
 
-doc-me!
+TATHU package uses the `GDALDataset <https://gdal.org/doxygen/classGDALDataset.html>`_ class from the GDAL library as an abstraction layer for 2D array data, i.e. raster data.
 
+Thus, to use your own data in the detection/tracking process you must be able to read the array of values from your data to an object of type `numpy array <https://numpy.org/doc/stable/reference/generated/numpy.array.html>`_.
+
+Then use the utility method provided by TATHU package - ``array2raster`` - to get a GDALDataset object. This method is defined in the `tathu/utils.py <https://github.com/uba/tathu/blob/master/tathu/utils.py>`_ file.
+
+You must also inform in which geographic region the data is located. This is possible from the ``extent`` parameter, i.e. a list of four values indicating the lower left (``ll``) and upper right (``ur``) corners coordinates. The correct order of ``extent`` values is:
+
+.. code-block:: python
+
+    extent = [llx, lly, urx, ury]
+
+Example:
+
+.. code-block:: python
+
+    from tathu.utils import array2raster
+
+    # Read your data to 2D numpy array
+    array = your_method_to_read_your_data_to_numpy_array()
+
+    # Define the geographic extent in format [llx, lly, urx, ury]. Example:
+    extent = [-100.0, -56.0, -20.0, 15.0]
+
+    # Use TATHU array2raster method
+    raster = array2raster(array, extent)
+
+    # From here, you can use all methods provided by the package
+    # to detect, describe and track objects of interest.
+    from tathu.tracking import descriptors, detectors
+
+    # Create detector
+    detector = detectors.LessThan(threshold, minarea)
+
+    # Detect objects
+    objects = detector.detect(raster)
+
+    # Create descriptor
+    descriptor = descriptors.StatisticalDescriptor()
+
+    # Describe objects
+    descriptor.describe(raster, objects)
+
+    # (...)
+
+That's it! 👍
