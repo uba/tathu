@@ -4,7 +4,11 @@
 
     TATHU - Tracking and Analysis of Thunderstorms is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
-
+    
+.. image:: https://raw.githubusercontent.com/uba/tathu/master/docs/sphinx/img/logo-tathu.png
+    :target: https://raw.githubusercontent.com/uba/tathu/master/docs/sphinx/img/logo-tathu.png
+    :width: 128
+    
 ==============================================
 TATHU - Tracking and Analysis of Thunderstorms
 ==============================================
@@ -44,9 +48,13 @@ techniques** and **spatial databases** in order to aid in the analysis and compu
 
 In addition, the package presents a conceptual model for defining the problem using abstract interfaces.
 
-Full documentation can be accessed on Read The Docs website: `TATHU Documentation <https://tathu.readthedocs.io/en/latest/>`_.
+Note: Portuguese word for "armadillo" is **tatu** which is derived from the Tupi language.
 
-   
+Documentation
+=============
+
+See Read The Docs website: `TATHU Documentation <https://tathu.readthedocs.io/en/latest/>`_.
+
 Installation
 ============
 
@@ -299,9 +307,6 @@ The CS lifecycle can be visualized, where each plot represents an instant of tim
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-life-cycle-view.png
     :width: 800
     :alt: CS lifecycle view.
-    
-Documentation
-=============
 
 References
 ==========
@@ -316,3 +321,8 @@ License
 
     TATHU - Tracking and Analysis of Thunderstorms is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
+    
+About Logo
+==========
+
+TATHU logo is inspired on `Armadillo icons created by Freepik - Flatico <https://www.flaticon.com/free-icons/armadillo>`_. 
