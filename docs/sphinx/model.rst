@@ -11,15 +11,13 @@
 Conceptual Model
 ================
 
-TATHU proposes a conceptual model to address the problem of tracking and analyzing the CS lifecycle.
-
-The entities of the model are:
+TATHU proposes a conceptual model to address the problem of tracking and analyzing the CS lifecycle. The entities of the model are:
 
 .. figure:: https://github.com/uba/tathu/raw/master/diagrams/tathu-diagram-entities.png
     :target: https://github.com/uba/tathu/raw/master/diagrams/tathu-diagram-entities.png
     :alt: Entities.
 
-    doc-me!
+    Entities for tracking and analyzing of CS proposed by TATHU package.
 
 Basically, a geospatial database contains the observed elements of interest, represented by the `ConvectiveSystem <https://github.com/uba/tathu/blob/5a49b11f5d901aba3167bf563bb836860d4696b1/tathu/tracking/system.py#L30>`_ class.
 This class has an identifier, ``uuid``, at least one spatial attribute, ``geom``, which indicates the geographic limits of the system, and n other attributes, ``fields``.

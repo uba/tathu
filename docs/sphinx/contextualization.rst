@@ -18,23 +18,23 @@ CS have a spatio-temporal behavior: they originate in a specific geographic loca
     :width: 600
     :alt: CS and spatio-temporal behavior.
 
-    doc-me!
+    CS and spatio-temporal behavior.
 
 .. figure:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/goes16-cs-example.gif
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/goes16-cs-example.gif
     :width: 300
     :alt: GOES16 example.
 
-    doc-me!
-    
-**The general steps involved for automatic monitoring the CS are:**
+    GOES-16 satellite imagery showing the evolution of a CS.
+
+The general steps involved for automatic monitoring the CS are:
 
 .. figure:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-methodology-en.jpg
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-methodology-en.jpg
     :width: 800
     :alt: Tracking methodology.
 
-    doc-me!
+    Tracking and Analysis methodology.
 
 * **Observation**: data acquisition from specific instrumentation. For example, digital images obtained from satellites of geostationary or polar orbit, measurements of meteorological RADAR, among other sources;
 * **Detection**: step to identify the objects of interest existing in the observed data. In the specific case of digital images, the use of different processing techniques can be considered, such as: thresholding, segmentation, classification, filters, among others.
