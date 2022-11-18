@@ -13,12 +13,14 @@ class Outputter(object):
     """
     This class can be used to export tracking results to CSV files.
     """
-    def __init__(self, path, writeHeader=True, delimiter=',', outputGeom=False, outputCentroid=False, precision=4):
+    def __init__(self, path, writeHeader=True, delimiter=',', outputGeom=False,
+            outputCentroid=False, outputRelationships=True, precision=4):
         self.path = path
         self.writeHeader = writeHeader
         self.delimiter = delimiter
         self.outputGeom = outputGeom
         self.outputCentroid = outputCentroid
+        self.outputRelationships = outputRelationships
         self.precision = precision
 
     def output(self, systems):
@@ -37,6 +39,9 @@ class Outputter(object):
 
         if self.outputCentroid:
             fieldnames.append('centroid')
+
+        if self.outputRelationships:
+            fieldnames.append('relationships')
 
         ## Add numeric attributes to field names ##
 
@@ -74,6 +79,10 @@ class Outputter(object):
             # Include geometry centroid, if requested
             if self.outputCentroid:
                 sdic['centroid'] = system.geom.Centroid().ExportToWkt()
+
+            # Include system relations, if requested
+            if self.outputRelationships:
+                sdic['relationships'] = system.getRelationshipNamesAsString()
 
             # Add numeric attributes and ajust float precision
             sdic.update(system.attrs)

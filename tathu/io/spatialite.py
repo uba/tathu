@@ -147,7 +147,7 @@ class Outputter(object):
             name TEXT,
             date_time TIMESTAMP, ''' + dynAttributes + '''
             event VARCHAR(64),
-            relationships list,
+            relationships TEXT,
             raster array,
             nodata INTEGER,
             geotransform tuple)'''
@@ -176,7 +176,7 @@ class Outputter(object):
         for name in self.attrs:
             tuple += (s.attrs[name],)
 
-        tuple += (str(s.event), s.getRelationshipNames(), raster, nodata, s.geotransform, s.getGeomWKT())
+        tuple += (str(s.event), s.getRelationshipNamesAsString(), raster, nodata, s.geotransform, s.getGeomWKT())
 
         return tuple
 
@@ -272,7 +272,7 @@ class Loader(object):
                 date = row[0]
 
             cur.close()
-            
+
             return datetime.strptime(date, format)
 
         except sqlite3.Error as e:
@@ -350,6 +350,12 @@ class Loader(object):
 
             for name in attrs:
                 s.attrs[name] = row[name]
+
+            # Load relationships
+            if row['relationships'] != '':
+                relations = row['relationships'].split(' ')
+                for name in relations:
+                    s.relationships.append(uuid.UUID(name))
 
             s.event = row['event']
 

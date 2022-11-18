@@ -65,7 +65,15 @@ class ConvectiveSystem(object):
         for r in self.relationships:
             if r.name != self.name:
                 names.append(str(r.name))
+        return names
 
+    def getRelationshipNamesAsString(self, separator=' '):
+        names = ''
+        for r in self.relationships:
+            if r.name != self.name:
+                names += str(r.name) + separator
+        if names != '':
+            names = names[:-1] # remove last separator
         return names
 
     def getAttrNames(self):
