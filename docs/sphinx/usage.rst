@@ -281,6 +281,13 @@ Example:
 
     For the GOES-13 satellite, the data was pre-processed (i.e. clipped and remapped) by DISSM/INPE. Therefore, it is not necessary to perform the remapping operation for object detection and tracking.
 
+🛰️ Using Meteosat Data
+-----------------------
+
+.. warning::
+
+    doc-me!
+
 📡 Using RADAR Data
 --------------------
 
