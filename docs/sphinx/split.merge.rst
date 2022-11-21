@@ -17,11 +17,11 @@ In the tracking process using the area overlapping method (`OverlapAreaTracker <
 
     CS events:  (a) continuity, (b) split and (c) merge. The dashed lines represent the systems at time t − ∆t. Adapted from Vila et al. (2008) [#]_.
 
-#. **Spontaneous Generation**: the SC is identified in one image, however, it is not present in the previous image or does not meet the minimum area overlapping criterion. This is the default event;
+#. **Spontaneous Generation**: the CS is identified in one image, however, it is not present in the previous image or does not meet the minimum area overlapping criterion. This is the default event;
 #. **Natural Dissipation**: It's the end of the system's lifecycle, not identified or tracked in the current image;
-#. **Continuity**: the SC is identified in an image and is present in the previous image, i.e. meets the minimum area overlap criterion;
-#. **Split**: at time t, there is an SC that satisfies the minimum area overlap criterion with **two** or **more** systems at time t − ∆t;
-#. **Merge**: at time t − ∆t, there are **two** or more SC that obey the minimum area overlap criterion with **only one** system at time t.
+#. **Continuity**: the CS is identified in an image and is present in the previous image, i.e. meets the minimum area overlap criterion;
+#. **Split**: at time t, there is an CS that satisfies the minimum area overlap criterion with **two** or **more** systems at time t − ∆t;
+#. **Merge**: at time t − ∆t, there are **two** or more CS that obey the minimum area overlap criterion with **only one** system at time t.
 
 Computationally:
 
