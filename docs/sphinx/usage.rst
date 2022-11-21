@@ -200,8 +200,8 @@ The CS lifecycle can be visualized, where each plot represents an instant of tim
     :width: 800
     :alt: CS lifecycle view.
 
-🛰️ Using GOES-16 Data
----------------------
+🛰️ Using GOES-16/ABI Data
+--------------------------
 
 TATHU package provides specific modules for downloading, reading and remapping data obtained from the GOES-16 satellite - ``tathu.downloader.goes`` and ``tathu.satellite.goes16``.
 
@@ -251,6 +251,13 @@ Example:
 
     # Remap
     grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+
+🛰️ Using GOES-16/GLM Data
+--------------------------
+
+.. warning::
+
+    doc-me!
 
 🛰️ Using GOES-13 Data
 ---------------------
