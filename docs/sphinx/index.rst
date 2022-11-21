@@ -38,7 +38,9 @@ techniques** and **spatial databases** in order to aid in the analysis and compu
 Reference
 =========
 
-UBA, D. M.; NEGRI, R. G.; ENORÉ, D. P.; COSTA, I. C.; JORGE, A. A. S. TATHU - Software para rastreio e análise do ciclo de vida de sistemas convectivos. São José dos Campos: INPE, 2022. 39 p. IBI: <8JMKD3MGP3W34T/47AF772>. (sid.inpe.br/mtc-m21d/2022/07.20.15.45-NTC). <http://urlib.net/ibi/8JMKD3MGP3W34T/47AF772>.
+.. note::
+
+    UBA, D. M.; NEGRI, R. G.; ENORÉ, D. P.; COSTA, I. C.; JORGE, A. A. S. TATHU - Software para rastreio e análise do ciclo de vida de sistemas convectivos. São José dos Campos: INPE, 2022. 39 p. IBI: <8JMKD3MGP3W34T/47AF772>. (sid.inpe.br/mtc-m21d/2022/07.20.15.45-NTC). <http://urlib.net/ibi/8JMKD3MGP3W34T/47AF772>.
 
 
 .. toctree::
