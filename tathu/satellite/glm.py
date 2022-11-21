@@ -104,7 +104,7 @@ class LightningDensity(object):
 
     def __extractFileTime(self, nc):
         sec = nc.variables['product_time'][0]
-        time = basedate + timedelta(seconds=sec)
+        time = basedate + timedelta(seconds=float(sec))
         return time
 
     def export(self, directory='./', prefix='den-'):
