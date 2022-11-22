@@ -25,6 +25,9 @@ def systems2geopandas(systems):
     # Add geometry
     df['geom'] = [ogr2shapely(s.geom) for s in systems]
 
+    # Add relationships
+    df['relationships'] = [s.getRelationshipNamesAsString() for s in systems]
+
     # Creat geo-dataframe
     gdf = geopandas.GeoDataFrame(df, geometry='geom')
 
@@ -46,4 +49,4 @@ class Outputter(object):
         if self.gdf is None:
             self.gdf = systems2geopandas(systems)
         else:
-            self.gdf.append(systems2geopandas(systems))
+            self.gdf = self.gdf.append(systems2geopandas(systems))
