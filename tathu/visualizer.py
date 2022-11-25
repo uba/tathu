@@ -58,7 +58,7 @@ class MapView(object):
 
     def plotSystems(self, systems, facecolor='red', alpha=1.0, edgecolor='k', lw=1.0, centroids=False):
         polygons = [s.geom for s in systems]
-        self.plotPolygons(polygons, facecolor, alpha, edgecolor, lw, centroids)
+        self.plotPolygons(polygons, facecolor, edgecolor, alpha, lw, centroids)
 
     def plotPolygons(self, polygons, facecolor='red', edgecolor='k', alpha=1.0, lw=1.0, centroids=False):
         # Centroid coordinates
