@@ -8,11 +8,8 @@
 
 """TATHU - Tracking and Analysis of Thunderstorms."""
 
-from .logo import TATHU_ASCII_LOGO
 from .version import __version__
 
 __all__ = (
     '__version__',
 )
-
-print(TATHU_ASCII_LOGO)
