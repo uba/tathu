@@ -45,7 +45,7 @@ DISSM.download('goes13', 'retangular_4km/ch4_bin',
     progress=TqdmProgress('Download GOES-13 data (DISSM)', 'files'))
 
 # Search images
-query = dir + '\**\*'
+query = dir + '/**/*'
 
 # Get files
 files = sorted(glob.glob(query, recursive=True))
