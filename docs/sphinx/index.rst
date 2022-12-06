@@ -63,6 +63,12 @@ Reference
 
 .. toctree::
     :hidden:
+    :caption: Gallery:
+
+    auto_examples/index
+
+.. toctree::
+    :hidden:
     :caption: Source Code Documentation:
 
     tathu

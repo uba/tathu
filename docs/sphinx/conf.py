@@ -36,8 +36,15 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_copybutton',
     'sphinx_rtd_theme',
-    # 'sphinx_tabs.tabs',
+    'sphinx_gallery.gen_gallery',
+    # 'sphinx_tabs.tabs',s
 ]
+
+# Configuration for gallery example.
+sphinx_gallery_conf = {
+    'examples_dirs': '../../examples/gallery', # path to example scripts (for gallery)
+    'gallery_dirs': 'auto_examples', # path to where to save gallery generated output
+}
 
 # Paths that contain templates, relative to this directory.
 templates_path = ['_templates']
