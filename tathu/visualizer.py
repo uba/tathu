@@ -51,6 +51,11 @@ class MapView(object):
         array = np.ma.masked_equal(image.ReadAsArray(), nodata)
         self.plotArray(array, cmap, vmin, vmax, colorbar)
 
+    def plotRaster(self, raster, cmap=None, vmin=None, vmax=None, colorbar=False):
+        nodata = raster.GetRasterBand(1).GetNoDataValue()
+        array = np.ma.masked_equal(raster.ReadAsArray(), nodata)
+        self.plotArray(array, cmap, vmin, vmax, colorbar)
+
     def plotArray(self, array, cmap=None, vmin=None, vmax=None, colorbar=False):
         im = self.ax.imshow(array, transform=self.crs, cmap=cmap, vmin=vmin, vmax=vmax, extent=self.extent)
         if colorbar:
