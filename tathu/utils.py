@@ -6,13 +6,14 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
+import datetime
 import os
 import re
 import time
-import datetime
 
 import numpy as np
 from osgeo import gdal, gdal_array
+from scipy import ndimage as nd
 
 from tathu.constants import LAT_LON_WGS84
 
@@ -69,7 +70,7 @@ def extractPeriods(files, timeout, regex='\d{12}', format='%Y%m%d%H%M'):
     for path in files:
         # Get current date/time
         current_time = file2timestamp(path, regex, format)
-        
+
         # Initialize, if necessary
         if previous_time is None:
             previous_time = current_time
@@ -86,7 +87,7 @@ def extractPeriods(files, timeout, regex='\d{12}', format='%Y%m%d%H%M'):
             previous_time = current_time
 
     result.append(period)
-    
+
     return result
 
 def file2timestamp(path, regex='\d{12}', format='%Y%m%d%H%M'):
@@ -185,21 +186,21 @@ def readFLO(path):
     This function reads Optical Flow Middlebury files (.flo).
     '''
     f = open(path, 'rb')
-    
+
     # Read magic number ("PIEH" in ASCII = float 202021.25)
     magic = np.fromfile(f, np.float32, count=1)
 
     if magic != 202021.25:
-        raise Exception('Invalid .flo file') 
+        raise Exception('Invalid .flo file')
 
     # Read width
     f.seek(4)
     w = int(np.fromfile(f, np.int32, count=1))
-    
+
     # Read height
     f.seek(8)
     h = int(np.fromfile(f, np.int32, count=1))
-    
+
     # Read (u,v) coordinates
     f.seek(12)
     data = np.fromfile(f, np.float32, count=w*h*2)
@@ -213,8 +214,25 @@ def readFLO(path):
     # Extract u and v coordinates
     u = dataM[:,:,0]
     v = dataM[:,:,1]
-    
+
     return w,h,u,v
+
+def fill(data, invalid=None):
+    '''
+    From: https://stackoverflow.com/questions/3662361/fill-in-missing-values-with-nearest-neighbour-in-python-numpy-masked-arrays
+    Replace the value of invalid 'data' cells (indicated by 'invalid')
+    by the value of the nearest valid data cell
+    Input:
+        data:    numpy array of any dimension
+        invalid: a binary array of same shape as 'data'. True cells set where data
+                 value should be replaced.
+                 If None (default), use: invalid  = np.isnan(data)
+    Output:
+        Return a filled array.
+    '''
+    if invalid is None: invalid = np.isnan(data)
+    ind = nd.distance_transform_edt(invalid, return_distances=False, return_indices=True)
+    return data[tuple(ind)]
 
 class Timer(object):
     def __enter__(self):
