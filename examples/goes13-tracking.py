@@ -32,7 +32,7 @@ resolution = 4.0
 
 # Threshold value
 threshold = 230 # Kelvin
-    
+
 # Define minimum area
 minarea = 3000 # km^2
 
@@ -48,25 +48,25 @@ attrs = ['min', 'mean', 'std', 'count', 'nae']
 def detect(path):
     # Extract timestamp
     timestamp = file2timestamp(path, regex=goes13.DATE_REGEX, format=goes13.DATE_FORMAT)
-    
+
     print('Processing', timestamp)
-    
+
     # Remap channel to 2km
     grid = goes13.sat2grid(path, extent, resolution, progress=gdal.TermProgress_nocb)
-    
+
     # Create detector
     detector = detectors.LessThan(threshold, minarea)
-    
+
     # Searching for systems
     systems = detector.detect(grid)
-    
+
     # Adjust timestamp
     for s in systems:
         s.timestamp = timestamp
-    
+
     # Create statistical descriptor
     descriptor = descriptors.StatisticalDescriptor(rasterOut=True)
-    
+
     # Describe systems (stats)
     descriptor.describe(grid, systems)
 
@@ -85,13 +85,13 @@ def main():
     start = end = datetime.strptime('20170408', '%Y%m%d')
     hours = HOURS
 
-    # From DISSM (crop/remapped version - GOES-13)    
+    # From DISSM (crop/remapped version - GOES-13)
     DISSM.download('goes13', 'retangular_4km/ch4_bin',
         start, end, hours, dir,
         progress=TqdmProgress('Download GOES-13 data (DISSM)', 'files'))
 
     # Search images
-    query = dir + '\**\*'
+    query = dir + '/**/*'
 
     # Get files
     files = sorted(glob.glob(query, recursive=True))
@@ -115,7 +115,7 @@ def main():
     for i in range(1, len(files)):
         # Detect current systems
         current = detect(files[i])
-        
+
         # Let's track!
         t = trackers.OverlapAreaTracker(previous, strategy=strategy)
         t.track(current)
@@ -123,13 +123,13 @@ def main():
         # Compute normalized area expansion attribute
         descriptor = descriptors.NormalizedAreaExpansionDescriptor()
         descriptor.describe(previous, current)
-        
+
         # Save to database
         db.output(current)
-        
+
         # Prepare next iteration
         previous = current
-    
+
     print('Done!')
 
 if __name__ == "__main__":
