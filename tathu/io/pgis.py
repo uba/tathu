@@ -215,8 +215,8 @@ class Loader(object):
                 # Apply mask
                 raster = np.ma.masked_where(raster == nodata, raster, False)
 
-                s.raster = raster
-                s.nodata = nodata
+                s.raster = raster/100
+                s.nodata = nodata/100
                 s.geotransform = row['geotransform']
 
                 s.relationships = row['relations']
@@ -260,8 +260,8 @@ class Loader(object):
                 # Apply mask
                 raster = np.ma.masked_where(raster == nodata, raster, False)
 
-                s.raster = raster
-                s.nodata = nodata
+                s.raster = raster/100
+                s.nodata = nodata/100
                 s.geotransform = row['geotransform']
 
                 s.relationships = row['relations']
@@ -270,5 +270,20 @@ class Loader(object):
 
                 return s
 
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+    def query(self, query):
+        try:
+            cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+            cur.execute(query)
+
+            results = cur.fetchall()
+
+            cur.close()
+
+            return results
+            
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
