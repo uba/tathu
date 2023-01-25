@@ -107,7 +107,7 @@ class DBZStatisticalDescriptor(object):
         if self.rasterOut:
             for sys in systems:
                 # Extract raster data from attrs dic
-                sys.raster = sys.attrs.pop(self.prefix + 'mini_raster_array')
+                sys.raster = 10 * np.log10(sys.attrs.pop(self.prefix + 'mini_raster_array'))
                 sys.nodata = sys.attrs.pop(self.prefix + 'mini_raster_nodata')
                 sys.geotransform = sys.attrs.pop(self.prefix + 'mini_raster_affine').to_gdal()
 
