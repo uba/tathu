@@ -67,11 +67,13 @@ class Outputter(object):
     """
     This class can be used to export tracking results to SQLite/SpatiaLite Database.
     """
-    def __init__(self, database, table, attrs):
+    def __init__(self, database, table, attrs, outputRaster=True, raster2int=True):
         # Store parameters
         self.database = database
         self.table = table
         self.attrs = attrs
+        self.outputRaster = outputRaster
+        self.raster2int = raster2int # Convert raster to int16 (disk-usage)?
 
         try:
             # Verify if is necessary call InitSpatialMetadata() function
@@ -134,42 +136,50 @@ class Outputter(object):
         if self.__tableExists(table):
             return
 
-        # Build numeric attributes creation command
-        # For while, using REAL for all
-        # TODO: create a map that relates attrs <-> data type on ConvectiveSystem class
-        # Can use Numpy types, like np.int16, np.float, etc.?
-        dynAttributes = ''
-        for attr in self.attrs:
-            dynAttributes += attr + ' REAL, '
+        try:
+            # Build numeric attributes creation command
+            # For while, using REAL for all
+            # TODO: create a map that relates attrs <-> data type on ConvectiveSystem class
+            # Can use Numpy types, like np.int16, np.float, etc.?
+            dynAttributes = ''
+            for attr in self.attrs:
+                dynAttributes += attr + ' REAL, '
 
-        cmd = '''CREATE TABLE IF NOT EXISTS ''' + table + '''(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            date_time TIMESTAMP, ''' + dynAttributes + '''
-            event VARCHAR(64),
-            relationships TEXT,
-            raster array,
-            nodata INTEGER,
-            geotransform tuple)'''
+            cmd = '''CREATE TABLE IF NOT EXISTS ''' + table + '''(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                date_time TIMESTAMP, ''' + dynAttributes + '''
+                event VARCHAR(64),
+                relationships TEXT,
+                raster array,
+                nodata INTEGER,
+                geotransform tuple)'''
 
-        cur = self.conn.cursor()
-        r = cur.execute(cmd)
+            cur = self.conn.cursor()
+            r = cur.execute(cmd)
 
-        # Add geometry field
-        cmd = "SELECT AddGeometryColumn('" + table + "'" + ''', 'geom', 4326, 'POLYGON', 'XY')'''
-        cur.execute(cmd)
+            # Add geometry field
+            cmd = "SELECT AddGeometryColumn('" + table + "'" + ''', 'geom', 4326, 'POLYGON', 'XY')'''
+            cur.execute(cmd)
 
-        cur.close()
+            cur.close()
+        except sqlite3.Error as e:
+            print(e)
 
     def __system2tuple(self, s):
         # Prepare raster data
-        nodata = s.nodata
-        raster = s.raster.filled(fill_value=nodata)
-
-        # Convert raster to int16 (disk-usage)
-        nodata = int(nodata * 100)
-        raster = raster * 100
-        raster = raster.astype(np.int8)
+        if self.outputRaster:
+            nodata = s.nodata
+            raster = s.raster.filled(fill_value=nodata)
+            # Convert if requested
+            if self.raster2int:
+                raster = np.ma.masked_where(raster == nodata, raster)
+                nodata = np.iinfo(np.int16).min
+                raster = raster * 100
+                raster = raster.filled(fill_value=nodata)
+                raster = raster.astype(np.int16)
+        else:
+            nodata, raster = 0, np.zeros((1,1))
 
         # Build system-tuple
         tuple = (None, str(s.name), s.timestamp)
@@ -365,8 +375,11 @@ class Loader(object):
 
             # Apply mask
             raster = np.ma.masked_where(raster == nodata, raster, False)
-
+            
             s.raster = raster
+            if raster.dtype == np.int16:
+                s.raster = raster/100.0
+
             s.nodata = nodata
             s.geotransform = row['geotransform']
 
