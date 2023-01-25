@@ -42,7 +42,7 @@ We recommend **Mamba** to install necessary dependencies and use the TATHU packa
     
     
 *Installation (deprecated)*
-===========================
+---------------------------
 
 We recommend **Miniconda** and ``conda-forge`` channel to install necessary dependencies and use the TATHU package.
 
