@@ -11,7 +11,7 @@
 .. include:: ../../INSTALL.rst
 
 Build the Documentation
-+++++++++++++++++++++++
+-----------------------
 
 
 You can generate the documentation based on Sphinx with the following command::
