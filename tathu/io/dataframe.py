@@ -21,18 +21,18 @@ def systems2geopandas(systems):
     # Add dynamic attributes
     for attr in systems[0].attrs:
         df[attr] = [s.attrs[attr] for s in systems]
-        
+
     # Add geometry
     df['geom'] = [ogr2shapely(s.geom) for s in systems]
 
     # Add relationships
     df['relationships'] = [s.getRelationshipNamesAsString() for s in systems]
 
-    # Creat geo-dataframe
+    # Create geo-dataframe
     gdf = geopandas.GeoDataFrame(df, geometry='geom')
 
     # Adjust SRS
-    gdf = gdf.set_crs('epsg:4326')
+    gdf = gdf.set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
 
     return gdf
 
