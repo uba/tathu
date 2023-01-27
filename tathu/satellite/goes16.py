@@ -12,8 +12,8 @@ import numpy as np
 from netCDF4 import Dataset
 from osgeo import gdal, osr
 
-from tathu.constants import KM_PER_DEGREE
-from tathu.utils import getGeoT
+from tathu.constants import KM_PER_DEGREE, LAT_LON_WGS84
+from tathu.utils import array2raster, getExtent, getGeoT
 
 # Date format (from ABI File Naming Conventions)
 DATE_REGEX = '\d{14}'
@@ -157,3 +157,62 @@ def sat2grid(path, extent, resolution, targetPrj, driver='NETCDF', autoscale=Tru
         grid.SetMetadata(['SCALE={}'.format(scale), 'OFFSET={}'.format(offset)])
 
     return grid
+
+def rect2grid(path, extent=None, resolution=2, autoscale=True, progress=None):
+    # Read file and values
+    dataset = gdal.Open(path, gdal.GA_ReadOnly)
+    dataset.GetGeoTransform()
+    raster = dataset.GetRasterBand(1)
+    array = raster.ReadAsArray()
+    if autoscale:
+        array = array/100.0
+    fullExtent = getExtent(dataset.GetGeoTransform(), array.shape)
+    if extent is None: # No remap requested
+        return array2raster(array, fullExtent)
+
+    # else, remap to given extent...
+    # Get memory driver
+    memDriver = gdal.GetDriverByName('MEM')
+
+    # Raster info
+    dtype = raster.DataType
+    fillValue = raster.GetNoDataValue()
+    if autoscale:
+        dtype = gdal.GDT_Float32
+        fillValue = np.finfo(np.float32).min
+
+    # Compute grid dimension
+    sizex = int(((extent[2] - extent[0]) * KM_PER_DEGREE)/resolution)
+    sizey = int(((extent[3] - extent[1]) * KM_PER_DEGREE)/resolution)
+
+    # Create result
+    remapped = memDriver.Create('grid', sizex, sizey, 1, dtype)
+
+    # Adjust no-data
+    if fillValue:
+        remapped.GetRasterBand(1).SetNoDataValue(float(fillValue))
+        remapped.GetRasterBand(1).Fill(float(fillValue))
+
+    # Setup projection and geo-transformation
+    remapped.SetProjection(LAT_LON_WGS84.ExportToWkt())
+    remapped.SetGeoTransform(getGeoT(extent, sizey, sizex))
+
+    # Perform the projection/resampling
+    gdal.ReprojectImage(dataset, remapped, LAT_LON_WGS84.ExportToWkt(),
+        LAT_LON_WGS84.ExportToWkt(), gdal.GRA_NearestNeighbour,
+        options=['NUM_THREADS=ALL_CPUS'], callback=progress)
+
+    if autoscale:
+        # Read remapped data
+        array = remapped.ReadAsArray()
+        # Apply scale
+        array = np.ma.masked_equal(array, fillValue)
+        array = array/100.0
+        array = np.ma.filled(array, fillValue)
+        # Back to raster
+        remapped.GetRasterBand(1).WriteArray(array)
+
+    # Close file
+    dataset = None
+
+    return remapped
