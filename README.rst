@@ -148,12 +148,16 @@ Next, let's detect CS followed by the definition of the statistical attributes. 
 
     from tathu.tracking import detectors
     from tathu.tracking import descriptors
+    from tathu.tracking.utils import area2degrees
 
     # Threshold value
     threshold = 230 # Kelvin
 
     # Define minimum area
     minarea = 3000 # km^2
+    
+    # Convert to degrees^2
+    minarea = area2degrees(minarea)
 
     # Create detector
     detector = detectors.LessThan(threshold, minarea)
@@ -213,7 +217,7 @@ The same result can be exported to a database instance with geospatial support, 
 .. code-block:: python
 
     from tathu.io import spatialite
-    database = spatialite.Outputter('systems.sqlite', 'systems')
+    database = spatialite.Outputter('systems.sqlite', 'systems', attrs)
     database.output(systems)
     
 Once the CS present in the image of June 15, 2021 - 00:00 UTC have been detected, it is now possible to perform the tracking. We use a new image, from the same day, 00:10 UTC. Use of ``trackers.OverlapAreaTracker``. 
