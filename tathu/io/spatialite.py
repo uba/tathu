@@ -288,6 +288,18 @@ class Loader(object):
         except sqlite3.Error as e:
             print(e)
 
+    def getDates(self, format='%Y%m%d%H%M'):
+        try:
+            cur = self.conn.cursor()
+            cur.execute('SELECT DISTINCT strftime(\'' + format + '\', date_time) FROM ' + self.table)
+            dates = []
+            for row in cur.fetchall():
+                dates.append(datetime.strptime(row[0], format))
+            cur.close()
+            return dates
+        except sqlite3.Error as e:
+            print(e)
+
     def loadLastSystems(self, attrs):
         try:
             date = self.getLastDate('%Y-%m-%d %H:%M:00')
