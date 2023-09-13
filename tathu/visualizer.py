@@ -365,8 +365,9 @@ class AnimationMapDatabase(animation.TimedAnimation):
         gl.top_labels = False
         gl.right_labels = False
 
-        self.array = self.map.imshow(self.__getArray(self.images[0]),
-            transform=self.crs, cmap=self.cmap, extent=self.extent)
+        if self.images:
+            self.array = self.map.imshow(self.__getArray(self.images[0]),
+                transform=self.crs, cmap=self.cmap, extent=self.extent)
 
         self.colors = {
             'SPONTANEOUS_GENERATION': 'green',
@@ -403,13 +404,14 @@ class AnimationMapDatabase(animation.TimedAnimation):
         [p.remove() for p in reversed(self.map.patches)]
 
         # Update image
-        self.array.set_array(self.__getArray(self.images[i]))
+        if self.images:
+            self.array.set_array(self.__getArray(self.images[i]))
 
         # Update title
         self.map.set_title(self.timestamps[i].strftime("%Y-%m-%d %H:%M:%S UTC"))
 
         # Load systems
-        systems = self.db.loadByDate('%Y%m%d%H%M', self.timestamps[i].strftime('%Y%m%d%H%M'), attrs=['nae'])
+        systems = self.db.loadByDate('%Y%m%d%H%M', self.timestamps[i].strftime('%Y%m%d%H%M'), attrs=['min'])
 
         # Create polygon graphic
         for s in systems:
