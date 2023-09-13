@@ -19,8 +19,13 @@ Every netCDF-4 file covers one hour, and contains two half-hourly grids, at 4-km
 import os
 import platform
 import shutil
+from datetime import datetime, timedelta
 from getpass import getpass
 from subprocess import Popen
+
+import requests
+
+from tathu.utils import generateListOfDays
 
 def create_prerequisite_files():
     '''
@@ -59,3 +64,31 @@ def create_prerequisite_files():
         # Copy dodsrc to working directory in Windows
         shutil.copy2(homeDir + '.dodsrc', os.getcwd())
         print('Copied .dodsrc to:', os.getcwd())
+
+class Earthdata:
+    # Base repo
+    repository = 'https://disc2.gesdisc.eosdis.nasa.gov/data/MERGED_IR/GPM_MERGIR.1/'
+
+    @staticmethod
+    def downloadAll(output='./'):
+        start = end = datetime.strptime('20000208', '%Y%m%d')
+        end = datetime.strptime('20230621', '%Y%m%d')
+        Earthdata.download(start, end, output)
+
+    @staticmethod
+    def download(start, end, output, progress=None):
+        create_prerequisite_files()
+        for day in generateListOfDays(start, end):
+            for hour in range(0, 24):
+                date = day + timedelta(hours=hour)
+                filename = date.strftime('merg_%Y%m%d%H_4km-pixel.nc4')
+                url = date.strftime('{}%Y/%j/{}').format(Earthdata.repository, filename)
+                print('Downloading', url, '|', 'Save to ->', output + filename)
+                Earthdata.__request(url, output + filename)
+
+    @staticmethod
+    def __request(url, output):
+        r = requests.get(url, allow_redirects=True)
+        open(output, 'wb').write(r.content)
+
+Earthdata.downloadAll()
