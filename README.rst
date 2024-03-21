@@ -48,6 +48,8 @@ techniques** and **spatial databases** in order to aid in the analysis and compu
 
 In addition, the package presents a conceptual model for defining the problem using abstract interfaces.
 
+Visualize `codebase <https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=uba%2Ftathu>`_.
+
 Note: Portuguese word for "armadillo" is **tatu** which is derived from the Tupi language.
 
 Documentation
