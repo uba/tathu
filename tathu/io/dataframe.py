@@ -49,4 +49,4 @@ class Outputter(object):
         if self.gdf is None:
             self.gdf = systems2geopandas(systems)
         else:
-            self.gdf = self.gdf.concat(systems2geopandas(systems))
+            self.gdf = self.gdf.pd.concat(systems2geopandas(systems))
