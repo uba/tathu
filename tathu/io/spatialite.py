@@ -82,7 +82,7 @@ class Outputter(object):
                 initSpatialMetadata = True
 
             # Make connection
-            self.conn = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES)
+            self.conn = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES, check_same_thread=False)
             self.conn.row_factory = sqlite3.Row
 
             # Load spatial extension (SpatiaLite)
@@ -387,7 +387,7 @@ class Loader(object):
 
             # Apply mask
             raster = np.ma.masked_where(raster == nodata, raster, False)
-            
+
             s.raster = raster
             if raster.dtype == np.int16:
                 s.raster = raster/100.0
