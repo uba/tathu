@@ -10,7 +10,7 @@ Installation (with Mamba)
 
 We recommend **Mamba** to install necessary dependencies and use the TATHU package.
 
-#. First, install  `Mamba <https://mamba.readthedocs.io/en/latest/installation.html>`_.
+#. First, install  `Mamba <https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html>`_.
 
 #. Clone the TATHU Repository::
 
