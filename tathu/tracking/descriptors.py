@@ -267,3 +267,14 @@ class OpticalFlowDescriptor():
         descriptor = StatisticalDescriptor(stats=['mean'], prefix='v_')
         descriptor.describe(v, systems)
         
+class MaxValueGeolocationDescriptor():
+    '''
+    This class implements a descriptor that calculates geolocation
+    (i.e. latitude and longitude coordinates) of the maximum value
+    found within the system boundaries.
+    '''
+    def __init__(self):
+        pass
+
+    def describe(self, image, systems):
+        pass

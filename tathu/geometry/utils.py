@@ -81,7 +81,13 @@ def fitEllipse(polygon):
     # Fit ellipse
     (xc,yc), (a,b), theta = cv2.fitEllipse(coords)
 
-    return ellipse2polygon(xc, yc, a * 0.5, b * 0.5, -theta)
+    # Compute eccentricity
+    major_ax, minor_ax = a, b
+    if a < b: major_ax, minor_ax = b, a
+    eccentricity = np.sqrt(1 - ((minor_ax * minor_ax)/(major_ax * major_ax)))
+    
+    return ellipse2polygon(xc, yc, a * 0.5, b * 0.5, -theta), eccentricity, theta
+
 
 def getRadiusFromCircle(polygon):
     # Extract coordinates to NumpyArray in order to user opencv2.minEnclosingCircle

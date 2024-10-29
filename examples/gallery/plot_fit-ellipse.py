@@ -29,6 +29,6 @@ def plot(geoms):
     plt.show()
 
 geom = EXAMPLE_GEOMETRY
-ellipse = fitEllipse(geom)
-
+ellipse, eccentricity, theta = fitEllipse(geom)
+print('Eccentricity {} and Angle {}'.format(eccentricity, theta))
 plot([geom, ellipse])
