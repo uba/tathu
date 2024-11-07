@@ -9,6 +9,7 @@
 from osgeo import gdal, ogr
 
 from tathu.constants import KM_PER_DEGREE
+from tathu.geometry.utils import extent2edges
 
 def copyImage(image):
     driver = gdal.GetDriverByName('MEM')
@@ -41,3 +42,17 @@ def polygonize(image, minArea=None, progress=None):
 
 def area2degrees(km2):
     return km2/(KM_PER_DEGREE * KM_PER_DEGREE)
+
+def verify_edges(extent, systems):
+    left, right, up, down = extent2edges(extent)
+    for s in systems:
+        for pos in ('left', 'right', 'up', 'down'):
+            s.attrs['touching_' + pos] = False
+        if s.geom.Intersects(left):
+            s.attrs['touching_left'] = True
+        if s.geom.Intersects(right):
+            s.attrs['touching_right'] = True
+        if s.geom.Intersects(up):
+            s.attrs['touching_up'] = True
+        if s.geom.Intersects(down):
+            s.attrs['touching_down'] = True

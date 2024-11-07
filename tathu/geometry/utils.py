@@ -40,6 +40,46 @@ def extractCoordinates2NumpyArray(polygon):
         i += 1
     return coords
 
+def extent2polygon(extent):
+    '''
+    This method converts the given extent to a polygon geometry object.
+    '''
+    # Create exterior ring
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint_2D(extent[0], extent[1])
+    ring.AddPoint_2D(extent[2], extent[1])
+    ring.AddPoint_2D(extent[2], extent[3])
+    ring.AddPoint_2D(extent[0], extent[3])
+    ring.AddPoint_2D(extent[0], extent[1])
+
+    # Create polygon
+    polygon = ogr.Geometry(ogr.wkbPolygon)
+    polygon.AddGeometry(ring)
+
+    return polygon
+
+def extent2edges(extent):
+    '''
+    This method converts the given extent to 4 lines that represent its edges.
+    '''
+    left = ogr.Geometry(ogr.wkbLineString)
+    left.AddPoint_2D(extent[0], extent[1])
+    left.AddPoint_2D(extent[0], extent[3])
+
+    right = ogr.Geometry(ogr.wkbLineString)
+    right.AddPoint_2D(extent[2], extent[1])
+    right.AddPoint_2D(extent[2], extent[3])
+
+    up = ogr.Geometry(ogr.wkbLineString)
+    up.AddPoint_2D(extent[0], extent[3])
+    up.AddPoint_2D(extent[2], extent[3])
+
+    down = ogr.Geometry(ogr.wkbLineString)
+    down.AddPoint_2D(extent[0], extent[1])
+    down.AddPoint_2D(extent[2], extent[1])
+
+    return left, right, up, down
+
 def ellipse2polygon(x, y, ra, rb, ang, npoints=32):
     '''
     Create polygon based on given ellipse parameters.

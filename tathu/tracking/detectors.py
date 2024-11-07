@@ -15,7 +15,8 @@ from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 
 from tathu.tracking.system import ConvectiveSystem, ConvectiveSystemManager
-from tathu.tracking.utils import copyImage, polygonize
+from tathu.tracking.utils import copyImage, polygonize, verify_edges
+from tathu.utils import getExtent
 
 class ThresholdOp(Enum):
     '''
@@ -49,7 +50,7 @@ class ThresholdDetector(object):
             data[data <= self.value] = 0
         elif self.op is ThresholdOp.GREATER_THAN_OR_EQUAL_TO:
             data[data < self.value] = 0
-            
+
         # Verify no-data
         nodata = image.GetRasterBand(1).GetNoDataValue()
 
@@ -72,6 +73,10 @@ class ThresholdDetector(object):
         systems = []
         for p in polygons:
             systems.append(ConvectiveSystem(p))
+
+        # Verify edges
+        image_extent = getExtent(image.GetGeoTransform(), data.shape)
+        verify_edges(image_extent, systems)
 
         return systems
 
@@ -238,7 +243,7 @@ class RangeThresholdDetector(object):
         # Note: by exclusion. i.e. keep values that obey the threshold restrictions
         data[data < self.min] = 0
         data[data > self.max] = 0
-        
+
         # Verify no-data
         nodata = image.GetRasterBand(1).GetNoDataValue()
 
@@ -263,4 +268,3 @@ class RangeThresholdDetector(object):
             systems.append(ConvectiveSystem(p))
 
         return systems
-        
