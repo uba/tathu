@@ -6,6 +6,7 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
+from tathu.geometry import transform
 from tathu.tracking.system import ConvectiveSystemManager, LifeCycleEvent
 
 ### @begin-Overlap area strategies. ###
@@ -254,3 +255,43 @@ class OverlapAreaTracker(object):
     def __getIdentifier(self, relations):
         choosen = self.picker(relations)
         return choosen.name
+
+class EdgeTracker(object):
+    '''
+    This class implements a convective system tracker that verifies topology at edges.
+    It can be used on global data, e.g. mosaic of satellite images covering the Earth territory.
+    '''
+    def __init__(self, previous):
+        self.previous = previous
+
+    def track(self, current):
+        # Get previous touching right/left systems
+        previous_right, previous_left = self.__getEdgeTouching(self.previous)
+
+        # Get current touching right/left systems
+        current_right, current_left = self.__getEdgeTouching(current)
+
+        # Verify going from right to -> left
+        self.__verifyTopology(previous_right, current_left)
+
+        # Verify going from left to -> right
+        self.__verifyTopology(previous_left, current_right)
+
+    def __getEdgeTouching(self, systems):
+        right, left = [], []
+        for s in systems:
+            if s.attrs['touching_right']:
+                right.append(s)
+            if s.attrs['touching_left']:
+                left.append(s)
+        return right, left
+
+    def __verifyTopology(self, source, destination):
+        for s in source:
+            # Spinning around the world
+            translated = transform.translate(s.geom, -360.0, 0.0)
+            # Verify topology, assign name and build new geometry
+            for d in destination:
+                if translated.Touches(d.geom):
+                    d.name = s.name # Baptized!
+                    d.geom = d.geom.Union(translated)
