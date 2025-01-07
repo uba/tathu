@@ -23,6 +23,7 @@ class LifeCycleEvent(Enum):
     CONTINUITY = 2
     SPLIT = 3
     MERGE = 4
+    INTERPOLATION = 5
 
     def __str__(self):
         return self.name
