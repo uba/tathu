@@ -35,7 +35,7 @@ grid = buildGrid(path)
 
 # Threshold value
 threshold = 230 # Kelvin
-    
+
 # Define minimum area
 minarea = 3000 # km^2
 
@@ -76,7 +76,13 @@ outputter.output(systems)
 print('done.')
 
 print('Exporting result to GeoJSON..')
-outputter = vector.GeoJSON('systems.json')
+outputter = vector.GeoJSON('systems.json',
+    options=[
+        'COORDINATE_PRECISION=4',
+        'SIGNIFICANT_FIGURES=4',
+    ],
+    compact=True
+)
 outputter.output(systems)
 print('done.')
 

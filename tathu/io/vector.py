@@ -6,13 +6,14 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
+import json
 from osgeo import ogr, osr
 
 class Outputter(object):
     """
     This class can be used to export tracking results to a vector geo-file (e.g. ESRI Shapefile, KML, etc.)
     """
-    def __init__(self, path, format):
+    def __init__(self, path, format, options=[]):
         self.path = path
         self.format = format
 
@@ -25,7 +26,7 @@ class Outputter(object):
         srs.ImportFromEPSG(4326)
 
         # Create spatial layer
-        self.layer = self.datasource.CreateLayer('', srs, ogr.wkbPolygon)
+        self.layer = self.datasource.CreateLayer('', srs, ogr.wkbPolygon, options)
 
         self.__createFixedAttributes()
 
@@ -71,19 +72,35 @@ class Shapefile(Outputter):
     """
     Auxiliary class that can be used to export tracking results to ESRI Shapefile.
     """
-    def __init__(self, path):
-        super(Shapefile, self).__init__(path, 'ESRI Shapefile')
+    def __init__(self, path, options=[]):
+        super(Shapefile, self).__init__(path, 'ESRI Shapefile', options)
 
 class KML(Outputter):
     """
     Auxiliary class that can be used to export tracking results to Google Keyhole Markup Language file (KML).
     """
-    def __init__(self, path):
-        super(KML, self).__init__(path, 'KML')
+    def __init__(self, path, options=[]):
+        super(KML, self).__init__(path, 'KML', options)
 
 class GeoJSON(Outputter):
     """
     Auxiliary class that can be used to export tracking results to GeoJSON files.
     """
-    def __init__(self, path):
-        super(GeoJSON, self).__init__(path, 'GeoJSON')
+    def __init__(self, path, options=[], compact=True):
+        self.compact = compact
+        super(GeoJSON, self).__init__(path, 'GeoJSON', options)
+
+    def output(self, systems):
+        try:
+            super().output(systems)
+        except:
+            pass
+        else:
+            self.datasource = None
+            if self.compact:
+                with open(self.path, 'r') as f:
+                    data = json.load(f)
+                with open(self.path, 'w') as f:
+                    json.dump(data, f, separators=(',', ':'))
+
+
