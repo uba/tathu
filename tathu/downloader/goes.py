@@ -17,7 +17,7 @@ from tathu.utils import generateListOfDays
 
 class AWS(object):
     # Define S3 Buckets
-    buckets = {'GOES-16': 'noaa-goes16/', 'GOES-17': 'noaa-goes17/'}
+    buckets = {'GOES-16': 'noaa-goes16/', 'GOES-17': 'noaa-goes17/', 'GOES-18': 'noaa-goes18/', 'GOES-19': 'noaa-goes19/'}
 
     @staticmethod
     def isChannelSeparated(product):
