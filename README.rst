@@ -29,6 +29,10 @@ TATHU - Tracking and Analysis of Thunderstorms
         :target: https://github.com/uba/tathu/releases
         :alt: Release
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.17298147.svg
+        :target: https://doi.org/10.5281/zenodo.17298147
+        :alt: DOI
+
 .. image:: https://img.shields.io/pypi/v/tathu
         :target: https://pypi.org/project/tathu/
         :alt: Python Package Index
