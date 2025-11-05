@@ -334,6 +334,8 @@ TATHU has been used in research focused on detecting, tracking, and characterizi
 
 * Kilroy, Gerard, and Jeffrey D. Thayer. Evaluation of the WRF model for simulating deep convection and cold‐pool characteristics relevant to wind‐energy applications in Germany. Quarterly Journal of the Royal Meteorological Society (2025): https://doi.org/10.1002/qj.70042
 
+* Gatti, E.C.; da Costa, I.C.; Vila, D. Vertical Structure of Heavy Rainfall Events in Brazil. Meteorology 2024, 3, 310-332. https://doi.org/10.3390/meteorology3030016
+
 License
 =======
 
