@@ -323,6 +323,17 @@ References
 
 UBA, D. M.; NEGRI, R. G.; ENORÉ, D. P.; COSTA, I. C.; JORGE, A. A. S. TATHU - Software para rastreio e análise do ciclo de vida de sistemas convectivos. São José dos Campos: INPE, 2022. 39 p. IBI: <8JMKD3MGP3W34T/47AF772>. (sid.inpe.br/mtc-m21d/2022/07.20.15.45-NTC). Disponível em: <http://urlib.net/ibi/8JMKD3MGP3W34T/47AF772>.
 
+Publications
+============
+
+TATHU has been used in research focused on detecting, tracking, and characterizing convective systems from diverse observational and modeling datasets. Below is a list of studies that have applied the package in analyses of storm life cycles, severe weather events, and atmospheric convection.
+
+* Lopes, C. D. C., Albrecht, R. I., Uba, D. M., Biscaro, T. S., and Saraiva, I.: Deep convection life cycle characteristics: a database from the GoAmazon experiment, Earth Syst. Sci. Data, 17, 5489–5505, https://doi.org/10.5194/essd-17-5489-2025, 2025.
+
+* Caio Atila P. Sena, Renato G. Negri, Maria Lívia L.M. Gava, GOES ABI-derived hailstorm polygons and tracking dataset for Brazil, Data in Brief, Volume 55, 2024, 110736, ISSN 2352-3409, https://doi.org/10.1016/j.dib.2024.110736.
+
+* Kilroy, Gerard, and Jeffrey D. Thayer. Evaluation of the WRF model for simulating deep convection and cold‐pool characteristics relevant to wind‐energy applications in Germany. Quarterly Journal of the Royal Meteorological Society (2025): https://doi.org/10.1002/qj.70042
+
 License
 =======
 
