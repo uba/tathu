@@ -347,3 +347,10 @@ About Logo
 ==========
 
 TATHU logo is inspired on `Armadillo icons created by Freepik - Flatico <https://www.flaticon.com/free-icons/armadillo>`_. 
+
+Quote
+=====
+
+.. epigraph::
+
+   "The obvious is that which is never seen until someone expresses it with simplicity." Kahlil Gibran
