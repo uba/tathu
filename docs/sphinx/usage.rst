@@ -19,7 +19,7 @@ Use a netCDF file with values measured by ABI/GOES-16, Channel 13, on June 15, 2
 .. code-block:: python
 
     from tathu.constants import LAT_LON_WGS84
-    from tathu.satellite import goes16
+    from tathu.satellite import goes_r
 
     # Path to netCDF GOES-16 file (IR-window) - ("past")
     path = './data/goes16/ch13/2021/06/ch13_202106150000.nc'
@@ -31,7 +31,7 @@ Use a netCDF file with values measured by ABI/GOES-16, Channel 13, on June 15, 2
     resolution = 2.0
 
     # Remap
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+    grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84)
 
 Next, let's detect CS followed by the definition of the statistical attributes. Use of ``detectors.LessThan`` and ``descriptors.StatisticalDescriptor``.
 
@@ -119,7 +119,7 @@ Once the CS present in the image of June 15, 2021 - 00:00 UTC have been detected
     path = './data/goes16/ch13/2021/06/ch13_202106150010.nc'
 
     # Remap
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+    grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84)
 
     # Tracking
     previous = systems
@@ -207,7 +207,7 @@ The CS lifecycle can be visualized, where each plot represents an instant of tim
 🛰️ Using GOES-16/ABI Data
 --------------------------
 
-TATHU package provides specific modules for downloading, reading and remapping data obtained from the GOES-16 satellite - ``tathu.downloader.goes`` and ``tathu.satellite.goes16``.
+TATHU package provides specific modules for downloading, reading and remapping data obtained from the GOES-16 satellite - ``tathu.downloader.goes`` and ``tathu.satellite.goes_r``.
 
 The data is downloaded directly from the AWS public service. More info access `NOAA Geostationary Operational Environmental Satellites (GOES) 16, 17 & 18 <https://registry.opendata.aws/noaa-goes/>`_.
 
@@ -241,7 +241,7 @@ Example:
 .. code-block:: python
 
     from tathu.constants import LAT_LON_WGS84
-    from tathu.satellite import goes16
+    from tathu.satellite import goes_r
 
     # Path to netCDF GOES-16 file
     path = './noaa-goes16/ABI-L2-CMIPF/2022/098/00/ \
@@ -254,7 +254,7 @@ Example:
     resolution = 2.0
 
     # Remap
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+    grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84)
 
 🛰️ Using GOES-16/GLM Data
 --------------------------

@@ -20,10 +20,10 @@ tathu.satellite.goes13 module
    :undoc-members:
    :show-inheritance:
 
-tathu.satellite.goes16 module
+tathu.satellite.goes_r module
 -----------------------------
 
-.. automodule:: tathu.satellite.goes16
+.. automodule:: tathu.satellite.goes_r
    :members:
    :undoc-members:
    :show-inheritance:
