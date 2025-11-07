@@ -86,6 +86,10 @@ class ConvectiveSystem(object):
     def fitEllipse(self):
         return fitEllipse(self.geom)
 
+    def addAtributes(self, attrs):
+        for name in attrs:
+            self.attrs[name] = 0
+
 class ConvectiveSystemFamily(object):
     '''
     This class represents a convective system family,

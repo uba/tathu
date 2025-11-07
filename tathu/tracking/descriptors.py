@@ -15,6 +15,7 @@ from affine import Affine
 from pathos.multiprocessing import ProcessingPool
 from rasterstats import zonal_stats
 
+from tathu.constants import METERS_PER_DEGREE
 from tathu.tracking.detectors import ThresholdDetector, ThresholdOp
 from tathu.tracking.system import ConvectiveSystemManager
 from tathu.utils import array2raster, getExtent
@@ -69,23 +70,23 @@ class DBZStatisticalDescriptor(object):
     defines a set of statistical attributes for each system.
     Note: This class uses dBZ radar calculations.
     '''
-    
+
     def __init__(self, stats=['max', 'mean', 'std', 'count'], prefix='', rasterOut=False):
         self.stats = stats
         self.prefix = prefix
         self.rasterOut = rasterOut
-        
+
     def describe(self, image, systems):
         # Get Affine object in order to run zonal_stats
         aff = Affine.from_gdal(*image.GetGeoTransform())
-        
+
         # Extract values
         values = image.ReadAsArray()
         values = 10 ** (values / 10)  # Convert to mm^6 m^-3
-        
+
         # Get no-data value
         nodata = image.GetRasterBand(1).GetNoDataValue()
-        
+
         #  Create WKT representation for each polygon
         wkts = []
         for sys in systems:
@@ -266,7 +267,7 @@ class OpticalFlowDescriptor():
         # v component
         descriptor = StatisticalDescriptor(stats=['mean'], prefix='v_')
         descriptor.describe(v, systems)
-        
+
 class MaxValueGeolocationDescriptor():
     '''
     This class implements a descriptor that calculates geolocation
@@ -278,3 +279,56 @@ class MaxValueGeolocationDescriptor():
 
     def describe(self, image, systems):
         pass
+
+class MovementDescriptor():
+    '''
+    This class implements a convective system descriptor
+    that computes the movement parameters (velocity, u, v and direction).
+    '''
+    def __init__(self):
+        pass
+
+    def describe(self, previous, current):
+        names = [s.name for s in previous]
+        for current_system in current:
+            try:
+                # Get associated system
+                previous_system = previous[names.index(current_system.name)]
+
+                # Get centroids
+                prev_centroid = previous_system.geom.Centroid()
+                curr_centroid = current_system.geom.Centroid()
+
+                # Compute displacement
+                dx = (curr_centroid.GetX() - prev_centroid.GetX()) * METERS_PER_DEGREE
+                dy = (curr_centroid.GetY() - prev_centroid.GetY()) * METERS_PER_DEGREE
+
+                # Compute time difference in seconds
+                dt = (current_system.timestamp - previous_system.timestamp).total_seconds()
+
+                # Compute velocity (m/s)
+                velocity = np.sqrt(dx*dx + dy*dy) / dt
+
+                # Compute u and v components
+                u = dx / dt
+                v = dy / dt
+
+                # Normalize to unit vector
+                magnitude = np.sqrt(u**2 + v**2)
+                if magnitude > 0:
+                    u /= magnitude
+                    v /= magnitude
+
+                # Compute direction in degrees (convention: 0=N, 90=E, 180=S, 270=W)
+                direction = np.degrees(np.arctan2(dx, dy))
+                if direction < 0:
+                    direction += 360
+
+                # Store results
+                current_system.attrs['velocity'] = velocity
+                current_system.attrs['direction'] = direction
+                current_system.attrs['u'] = u
+                current_system.attrs['v'] = v
+
+            except ValueError:
+                pass
