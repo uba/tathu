@@ -368,7 +368,7 @@ class Loader(object):
 
             # Load numeric attributes
             s.name = uuid.UUID(row['name'])
-            s.timestamp = datetime.strptime(str(row['date_time']), '%Y-%m-%d %H:%M:%S')
+            s.timestamp = datetime.fromisoformat(str(row['date_time']))
 
             for name in attrs:
                 s.attrs[name] = row[name]
