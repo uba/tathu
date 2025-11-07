@@ -12,7 +12,7 @@ from osgeo import gdal
 
 from tathu.constants import LAT_LON_WGS84
 from tathu.io import icsv, vector
-from tathu.satellite import goes16
+from tathu.satellite import goes_r
 from tathu.tracking import descriptors, detectors
 from tathu.tracking.utils import area2degrees
 from tathu.utils import file2timestamp
@@ -25,7 +25,7 @@ def buildGrid(path):
     # Grid resolution (kilometers)
     resolution = 2.0
     print('Remapping')
-    return goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84, 'HDF5', progress=gdal.TermProgress_nocb)
+    return goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84, 'HDF5', progress=gdal.TermProgress_nocb)
 
 # Path to netCDF GOES-16 file (IR-window)
 path = '../data/OR_ABI-L2-CMIPF-M6C13_G16_s20221750000204_e20221750009523_c20221750010006.nc'
@@ -50,7 +50,7 @@ systems = detector.detect(grid)
 print('done.')
 
 # Extract timestamp
-timestamp = file2timestamp(path, regex=goes16.DATE_REGEX, format=goes16.DATE_FORMAT)
+timestamp = file2timestamp(path, regex=goes_r.DATE_REGEX, format=goes_r.DATE_FORMAT)
 print('Date', timestamp)
 
  # Adjust timestamp

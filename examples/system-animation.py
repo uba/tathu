@@ -20,7 +20,7 @@ db = spatialite.Loader(dbname, table)
 names = db.loadNames()
 
 # Load first
-family = db.load(names[0], ['min', 'mean', 'std', 'count'])
+family = db.load(names[0], ['min', 'mean', 'std', 'count', 'u', 'v'])
 
 # Animation
 view = visualizer.AnimationMap(family, ['min', 'mean'])

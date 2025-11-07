@@ -13,7 +13,7 @@ from osgeo import gdal
 
 from tathu.constants import LAT_LON_WGS84
 from tathu.downloader.goes import AWS
-from tathu.satellite import goes16
+from tathu.satellite import goes_r
 from tathu.tracking import descriptors, detectors, trackers, forecasters
 from tathu.tracking.utils import area2degrees
 from tathu.utils import file2timestamp
@@ -40,9 +40,9 @@ resolution = 4.0
 
 def buildGrid(path):
     # Extract timestamp
-    timestamp = file2timestamp(path, regex=goes16.DATE_REGEX, format=goes16.DATE_FORMAT)
+    timestamp = file2timestamp(path, regex=goes_r.DATE_REGEX, format=goes_r.DATE_FORMAT)
     print('Date', timestamp)
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84, 'HDF5', progress=gdal.TermProgress_nocb)
+    grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84, 'HDF5', progress=gdal.TermProgress_nocb)
     return grid, timestamp
 
 def detect(path):

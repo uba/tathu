@@ -11,13 +11,13 @@
 import matplotlib.pyplot as plt
 
 import tathu.constants
-from tathu.satellite import goes16
+from tathu.satellite import goes_r
 from tathu.utils import getExtent
 from tathu.visualizer import MapView
 
 def viewData(path, extent=None):
     # Get grid from GOES-16 DISSM pre-processed file
-    grid = goes16.rect2grid(path, extent)
+    grid = goes_r.rect2grid(path, extent)
     # No remap requested. Get full extent in order to visualize
     if extent is None:
         extent = getExtent(grid.GetGeoTransform(), grid.GetRasterBand(1).ReadAsArray().shape)

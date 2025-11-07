@@ -14,10 +14,14 @@ from osgeo import gdal
 
 from tathu.constants import LAT_LON_WGS84
 from tathu.io import spatialite
-from tathu.satellite import goes16
+from tathu.satellite import goes_r
 from tathu.tracking import descriptors, detectors, trackers
 from tathu.tracking.utils import area2degrees
 from tathu.utils import file2timestamp
+
+import warnings
+from shapely.errors import ShapelyDeprecationWarning
+warnings.filterwarnings('ignore', category=ShapelyDeprecationWarning)
 
 ### Setup Parameters ###
 
@@ -29,7 +33,7 @@ resolution = 2.0
 
 # Threshold value
 threshold = 230 # Kelvin
-    
+
 # Define minimum area
 minarea = 3000 # km^2
 
@@ -39,37 +43,41 @@ minarea = area2degrees(minarea)
 # Define overlap area criterion
 overlapAreaCriterion = 0.1 # 10%
 
-# Attributes that will be computed (nae is normalized area expansion)
-attrs = ['min', 'mean', 'std', 'count', 'nae']
+# Stats attributes that will be computed
+attrs = ['min', 'mean', 'std', 'median', 'count']
+
+# Additional movement attributes that will be computed after tracking
+movement_attrs = ['nae', 'velocity', 'u', 'v', 'direction']
 
 def detect(path):
     # Extract timestamp
-    timestamp = file2timestamp(path, regex=goes16.DATE_REGEX, format=goes16.DATE_FORMAT)
-    
+    timestamp = file2timestamp(path, regex=goes_r.DATE_REGEX, format=goes_r.DATE_FORMAT)
+
     print('Processing', timestamp)
-    
+
     # Remap channel to 2km
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84,
+    grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84,
         'HDF5', progress=gdal.TermProgress_nocb)
-    
+
     # Create detector
     detector = detectors.LessThan(threshold, minarea)
-    
+
     # Searching for systems
     systems = detector.detect(grid)
-    
+
     # Adjust timestamp
     for s in systems:
         s.timestamp = timestamp
-    
+
     # Create statistical descriptor
-    descriptor = descriptors.StatisticalDescriptor(rasterOut=True)
-    
+    descriptor = descriptors.StatisticalDescriptor(stats=attrs, rasterOut=True)
+
     # Describe systems (stats)
     descriptor.describe(grid, systems)
 
+    # Add additional attributes (computed after the tracking operation)
     for s in systems:
-        s.attrs['nae'] = 0
+        s.addAtributes(movement_attrs) # will be computed later
 
     grid = None
 
@@ -77,7 +85,7 @@ def detect(path):
 
 def main():
     # Base directory
-    images = '../data/noaa-goes16/**/*.nc'
+    images = './data/noaa-goes16/**/*.nc'
 
     # Get files
     files = sorted(glob.glob(images, recursive=True))
@@ -86,7 +94,7 @@ def main():
     current = detect(files[0])
 
     # Create database connection
-    db = spatialite.Outputter('systems-db.sqlite', 'systems', attrs)
+    db = spatialite.Outputter('systems-db.sqlite', 'systems', attrs + movement_attrs)
 
     # Save to database
     db.output(current)
@@ -101,7 +109,7 @@ def main():
     for i in range(1, len(files)):
         # Detect current systems
         current = detect(files[i])
-        
+
         # Let's track!
         t = trackers.OverlapAreaTracker(previous, strategy=strategy)
         t.track(current)
@@ -109,13 +117,17 @@ def main():
         # Compute normalized area expansion attribute
         descriptor = descriptors.NormalizedAreaExpansionDescriptor()
         descriptor.describe(previous, current)
-        
+
+        # Compute velocity and direction attributes
+        descriptor = descriptors.MovementDescriptor()
+        descriptor.describe(previous, current)
+
         # Save to database
         db.output(current)
-        
+
         # Prepare next iteration
         previous = current
-    
+
     print('Done!')
 
 if __name__ == "__main__":
