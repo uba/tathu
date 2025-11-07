@@ -15,7 +15,7 @@ import click
 
 from tathu.constants import KM_PER_DEGREE, LAT_LON_WGS84
 from tathu.io import spatialite
-from tathu.satellite import goes16
+from tathu.satellite import goes_r
 from tathu.tracking import descriptors, detectors, trackers
 from tathu.utils import Timer, extractPeriods, file2timestamp
 
@@ -30,11 +30,11 @@ def detect(path, date_regex, date_format, extent, resolution, threshold,
     with Timer():
         # Extract file timestamp
         timestamp = file2timestamp(path, date_regex, date_format)
-        
+
         print('Searching for systems at:', timestamp)
 
         # Remap channel to 2km
-        grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84, 'HDF5', progress=None)
+        grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84, 'HDF5', progress=None)
 
         # Create detector
         detector = detectors.LessThan(threshold, minarea)
@@ -45,10 +45,10 @@ def detect(path, date_regex, date_format, extent, resolution, threshold,
         # Adjust timestamp
         for s in systems:
             s.timestamp = timestamp
-            
+
         # Create statistical descriptor
         descriptor = descriptors.StatisticalDescriptor(stats=stats, rasterOut=True)
-        
+
         # Describe systems (stats)
         systems = descriptor.describe(grid, systems)
 
@@ -89,23 +89,23 @@ def track(files, date_regex, date_format, extent, resolution, threshold, minarea
             # Detect current systems
             current = detect(files[i], date_regex, date_format, extent, resolution,
                 threshold, minarea, stats, threshold_cc, minarea_cc)
-            
+
             # Let's track!
             t = trackers.OverlapAreaTracker(previous, strategy=strategy)
             t.track(current)
-            
+
             # Compute normalized area expansion attribute, if requested
             descriptor = descriptors.NormalizedAreaExpansionDescriptor()
             descriptor.describe(previous, current)
 
             # Save to output
             outputter.output(current)
-            
+
             # Prepare next iteration
             previous = current
     except Exception as e:
         print('Unexpected error:', e, sys.exc_info()[0])
-        
+
 @click.command()
 @click.option('--config', type=click.Path(exists=True), help='Path to config tracking file.', required=True)
 def main(config):
@@ -142,7 +142,7 @@ def main(config):
     columns = stats.copy()
     columns.append('nae')
     columns.append('ncells')
-    
+
     # Get files
     files = getFiles(repository)
 

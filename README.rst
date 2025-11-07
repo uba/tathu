@@ -4,11 +4,11 @@
 
     TATHU - Tracking and Analysis of Thunderstorms is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
-    
+
 .. image:: https://raw.githubusercontent.com/uba/tathu/master/docs/sphinx/img/logo-tathu.png
     :target: https://raw.githubusercontent.com/uba/tathu/master/docs/sphinx/img/logo-tathu.png
     :width: 128
-    
+
 ==============================================
 TATHU - Tracking and Analysis of Thunderstorms
 ==============================================
@@ -46,7 +46,7 @@ About
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-radar-nowcasting.gif
     :width: 420
     :alt: CS animation.
-    
+
 The package provides a modular and extensible structure, supports different types of geospatial data and proposes the use of **Geoinformatics
 techniques** and **spatial databases** in order to aid in the analysis and computational representation of the CS.
 
@@ -77,14 +77,14 @@ CS have a spatio-temporal behavior: they originate in a specific geographic loca
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/system-evolution-en.jpg
     :width: 600
     :alt: CS and spatio-temporal behavior.
-    
+
 The general steps involved for automatic monitoring the CS are:
 
 .. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-methodology-en.jpg
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/tracking-methodology-en.jpg
     :width: 800
     :alt: Tracking methodology.
-    
+
 * **Observation**: data acquisition from specific instrumentation. For example, digital images obtained from satellites of geostationary or polar orbit, measurements of meteorological RADAR, among other sources;
 * **Detection**: step to identify the objects of interest existing in the observed data. In the specific case of digital images, the use of different processing techniques can be considered, such as: thresholding, segmentation, classification, filters, among others.
 * **Description**: extraction of different types of attributes and classification. In this case, one can consider spectral attributes (measurements of a sensor in different channels), statistical analysis (mean, variance, etc.) and shape characteristics (size, orientation, rectangularity, among others);
@@ -123,7 +123,7 @@ Pseudocode for detection, characterization, tracking and forecast of CS using th
         tracker.track(previous, systems)
         forecaster.forecast(previous, systems)
         previous = systems
-    
+
 From Theory to Practice
 =======================
 
@@ -134,19 +134,19 @@ Use a netCDF file with values measured by ABI/GOES-16, Channel 13, on June 15, 2
 .. code-block:: python
 
     from tathu.constants import LAT_LON_WGS84
-    from tathu.satellite import goes16
+    from tathu.satellite import goes_r
 
     # Path to netCDF GOES-16 file (IR-window) - ("past")
     path = './data/goes16/ch13/2021/06/ch13_202106150000.nc'
 
-    # Geographic area of regular grid 
+    # Geographic area of regular grid
     extent = [-100.0, -56.0, -20.0, 15.0]
 
     # Grid resolution (kilometers)
     resolution = 2.0
 
     # Remap
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+    grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84)
 
 Next, let's detect CS followed by the definition of the statistical attributes. Use of ``detectors.LessThan`` and ``descriptors.StatisticalDescriptor``.
 
@@ -161,7 +161,7 @@ Next, let's detect CS followed by the definition of the statistical attributes. 
 
     # Define minimum area
     minarea = 3000 # km^2
-    
+
     # Convert to degrees^2
     minarea = area2degrees(minarea)
 
@@ -177,11 +177,11 @@ Next, let's detect CS followed by the definition of the statistical attributes. 
 
     # Describe systems (stats)
     descriptor.describe(grid, systems)
-    
+
 Export the result to a CSV file ``systems.csv``:
-    
+
 .. code-block:: python
-    
+
     from tathu.io import icsv
     outputter = icsv.Outputter('systems.csv', writeHeader=True)
     outputter.output(systems)
@@ -199,7 +199,7 @@ File preview. Each line represents an CS, which has a unique identifier, the dat
 The visualization can be performed based on the following snippet:
 
 .. code-block:: python
-    
+
     from tathu.tracking.visualizer import MapView
 
     # Create MapView component
@@ -217,7 +217,7 @@ The visualization can be performed based on the following snippet:
 .. image:: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
     :target: https://github.com/uba/tathu/raw/master/docs/sphinx/img/map-view.png
     :alt: Map view component.
-    
+
 The same result can be exported to a database instance with geospatial support, like SpatiaLite and PostGIS:
 
 .. code-block:: python
@@ -225,16 +225,16 @@ The same result can be exported to a database instance with geospatial support, 
     from tathu.io import spatialite
     database = spatialite.Outputter('systems.sqlite', 'systems', attrs)
     database.output(systems)
-    
-Once the CS present in the image of June 15, 2021 - 00:00 UTC have been detected, it is now possible to perform the tracking. We use a new image, from the same day, 00:10 UTC. Use of ``trackers.OverlapAreaTracker``. 
-    
+
+Once the CS present in the image of June 15, 2021 - 00:00 UTC have been detected, it is now possible to perform the tracking. We use a new image, from the same day, 00:10 UTC. Use of ``trackers.OverlapAreaTracker``.
+
 .. code-block:: python
 
     # Path to new netCDF GOES-16 file - ("present")
     path = './data/goes16/ch13/2021/06/ch13_202106150010.nc'
 
     # Remap
-    grid = goes16.sat2grid(path, extent, resolution, LAT_LON_WGS84)
+    grid = goes_r.sat2grid(path, extent, resolution, LAT_LON_WGS84)
 
     # Tracking
     previous = systems
@@ -261,7 +261,7 @@ Finally, the prediction of CS for future moments can be performed based on the f
 .. code-block:: python
 
     from tathu.tracking import forecasters
-    
+
     times = [15, 30, 45, 60, 90, 120] # minutes
 
     # Forecaster entity
@@ -302,8 +302,8 @@ Other methods can be used to load CS more efficiently, for example: from the dur
     # Load CS from day 26/06/2021
     systems = db.loadByDay('20210626')
 
-      # Load CS using SQL query            
-    systems = db.query('generic query example') 
+      # Load CS using SQL query
+    systems = db.query('generic query example')
 
 The CS lifecycle can be visualized, where each plot represents an instant of time in the systems life cycle.
 
@@ -344,11 +344,11 @@ License
 
     TATHU - Tracking and Analysis of Thunderstorms is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
-    
+
 About Logo
 ==========
 
-TATHU logo is inspired on `Armadillo icons created by Freepik - Flatico <https://www.flaticon.com/free-icons/armadillo>`_. 
+TATHU logo is inspired on `Armadillo icons created by Freepik - Flatico <https://www.flaticon.com/free-icons/armadillo>`_.
 
 Quote
 =====
