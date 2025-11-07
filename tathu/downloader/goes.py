@@ -33,7 +33,7 @@ class AWS(object):
             if p.find('.html') == -1 and p.find('.pdf') == -1:
                 products.append(p.replace(bucket, ''))
         return products
-        
+
     @staticmethod
     def download(bucket, products, start, end, hours, channels, output, progress=None):
         # Connection with S3 GOES AWS file system
@@ -98,7 +98,7 @@ class AWS(object):
 
 class DISSM(object):
     baseurl = 'http://ftp.cptec.inpe.br/goes'
-    satellites = ['goes13', 'goes16']
+    satellites = ['goes13', 'goes16', 'goes19']
     channels = {
         'goes13': [
             'retangular_1km/ch1_bin',
@@ -108,15 +108,17 @@ class DISSM(object):
             'retangular_4km/ch4_bin',
             'retangular_4km/ch5_bin'
         ],
-        'goes16': []
+        'goes16': [],
+        'goes19': []
     }
     # Build channel names (i.e. ['01', '02, '03', ..., '15', '16'])
     channels['goes16'] = ['retangular/ch' + str(i).zfill(2) for i in range(1, 17)]
+    channels['goes19'] = ['retangular/ch' + str(i).zfill(2) for i in range(1, 17)]
 
     @staticmethod
     def download(satellite, channel, start, end, hours, output, progress=None):
         # NOTE: using requests and RE because the CPTEC/FTP server is not currently accepting connection (?).
-        # ftp = FTP('ftp.cptec.inpe.br') 
+        # ftp = FTP('ftp.cptec.inpe.br')
         # ftp.login() <== error!
         assert(satellite in DISSM.satellites)
         assert(channel in DISSM.channels[satellite])
@@ -131,7 +133,7 @@ class DISSM(object):
                 regex = '.*_{}{}.*'.format(day.strftime('%Y%m%d'), hour)
                 r = re.compile(regex)
                 files.append(list(filter(r.match, day_files)))
-        
+
         # Flat list of files
         files = list(chain.from_iterable(files))
 
