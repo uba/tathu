@@ -230,6 +230,8 @@ class AnimationMap(animation.TimedAnimation):
         self.extent = family.getExtent()
         self.polygons = family.getPolygons()
         self.arrays = family.getRasters()
+        self.u = family.getAttribute('u')
+        self.v = family.getAttribute('v')
         self.timestamps = family.getTimestamps()
         self.timeseries = []
         for name in attributes:
@@ -300,6 +302,19 @@ class AnimationMap(animation.TimedAnimation):
         axes[1].get_yaxis().set_visible(False)
         axes[1].set_facecolor((0, 0, 0))
 
+        # Map center for arrow
+        cx = (self.extent[0] + self.extent[1]) / 2
+        cy = (self.extent[2] + self.extent[3]) / 2
+
+        # Create arrow (u,v) - direction
+        self.quiver = self.map.quiver(
+            cx, cy,
+            self.u[0], self.v[0],
+            transform=self.crs,
+            scale=5,
+            width=0.008
+        )
+
         animation.TimedAnimation.__init__(self, fig, interval=200, blit=False, repeat_delay=2000)
 
     def show(self):
@@ -325,6 +340,10 @@ class AnimationMap(animation.TimedAnimation):
         for k in range(0, len(self.lines)):
             self.lines[k].set_data(self.x[k][0:i+1], self.timeseries[k][0:i+1])
             toDraw.append(self.lines[k])
+
+        # Update direction arrow
+        self.quiver.set_UVC(self.u[i], self.v[i])
+        toDraw.append(self.quiver)
 
         self._drawn_artists = toDraw
 
