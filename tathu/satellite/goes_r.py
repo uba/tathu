@@ -33,7 +33,7 @@ def getFillValue(path, var='CMI'):
     return value
 
 def getProj(path):
-    # Open GOES-16 netCDF file
+    # Open GOES-R netCDF file
     nc = Dataset(path, mode='r')
     # Get GOES-R ABI fixed grid projection
     proj = nc['goes_imager_projection']
@@ -50,7 +50,7 @@ def getProj(path):
     # Create projection object
     proj = osr.SpatialReference()
     proj.ImportFromProj4(proj4)
-    # Close GOES-16 netCDF file
+    # Close GOES-R netCDF file
     nc.close()
     return proj
 
