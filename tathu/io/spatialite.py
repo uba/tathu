@@ -304,7 +304,7 @@ class Loader(object):
         try:
             date = self.getLastDate('%Y-%m-%d %H:%M:00')
             cur = self.conn.cursor()
-            cur.execute('SELECT *, ST_AsBinary(geom) as wkb FROM ' + self.table + ' WHERE date_time=\'' + date + '\'')
+            cur.execute('SELECT *, ST_AsBinary(geom) as wkb FROM ' + self.table + ' WHERE date_time=\'' + date.strftime('%Y-%m-%d %H:%M:00') + '\'')
             return self.__fetchSystems(cur, attrs)
         except sqlite3.Error as e:
             print(e)
