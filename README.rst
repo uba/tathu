@@ -330,9 +330,11 @@ TATHU has been used in research focused on detecting, tracking, and characterizi
 
 * Lopes, C. D. C., Albrecht, R. I., Uba, D. M., Biscaro, T. S., and Saraiva, I.: Deep convection life cycle characteristics: a database from the GoAmazon experiment, Earth Syst. Sci. Data, 17, 5489–5505, https://doi.org/10.5194/essd-17-5489-2025, 2025.
 
-* Caio Atila P. Sena, Renato G. Negri, Maria Lívia L.M. Gava, GOES ABI-derived hailstorm polygons and tracking dataset for Brazil, Data in Brief, Volume 55, 2024, 110736, ISSN 2352-3409, https://doi.org/10.1016/j.dib.2024.110736.
+* Thayer, J. D., Kilroy, G., and Wildmann, N.: How do convective cold pools influence the atmospheric boundary layer near two wind turbines in northern Germany?, Wind Energ. Sci., 10, 2237–2255, https://doi.org/10.5194/wes-10-2237-2025, 2025.
 
 * Kilroy, Gerard, and Jeffrey D. Thayer. Evaluation of the WRF model for simulating deep convection and cold‐pool characteristics relevant to wind‐energy applications in Germany. Quarterly Journal of the Royal Meteorological Society (2025): https://doi.org/10.1002/qj.70042
+
+* Caio Atila P. Sena, Renato G. Negri, Maria Lívia L.M. Gava, GOES ABI-derived hailstorm polygons and tracking dataset for Brazil, Data in Brief, Volume 55, 2024, 110736, ISSN 2352-3409, https://doi.org/10.1016/j.dib.2024.110736.
 
 * Gatti, E.C.; da Costa, I.C.; Vila, D. Vertical Structure of Heavy Rainfall Events in Brazil. Meteorology 2024, 3, 310-332. https://doi.org/10.3390/meteorology3030016
 
