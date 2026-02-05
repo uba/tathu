@@ -338,6 +338,10 @@ TATHU has been used in research focused on detecting, tracking, and characterizi
 
 * Gatti, E.C.; da Costa, I.C.; Vila, D. Vertical Structure of Heavy Rainfall Events in Brazil. Meteorology 2024, 3, 310-332. https://doi.org/10.3390/meteorology3030016
 
+* Lopes, Camila da Cunha. Envigoração da convecção profunda? uma análise dos sistemas convectivos na Amazônia e do papel da termodinâmica e dos aerossóis. 2025. Tese (Doutorado em Meteorologia) - Instituto de Astronomia, Geofísica e Ciências Atmosféricas, University of São Paulo, São Paulo, 2024. doi:10.11606/T.14.2024.tde-22012025-200800. https://www.teses.usp.br/teses/disponiveis/14/14133/tde-22012025-200800/en.php
+
+* Monteiro, Carolina de Aguiar. Relações entre a atividade elétrica, óxidos de nitrogênio e partículas ultrafinas na Amazônia Central durante a estação chuvosa. 2022. Dissertação (Mestrado em Meteorologia) - Instituto de Astronomia, Geofísica e Ciências Atmosféricas, University of São Paulo, São Paulo, 2022. doi:10.11606/D.14.2022.tde-03012023-205036. https://www.teses.usp.br/teses/disponiveis/14/14133/tde-03012023-205036/en.php 
+
 License
 =======
 
