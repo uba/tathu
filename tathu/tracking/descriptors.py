@@ -25,10 +25,12 @@ class StatisticalDescriptor(object):
     This class implements a convective system descriptor that
     defines a set of statistical attributes for each system.
     '''
-    def __init__(self, stats=['min', 'mean', 'std', 'count'], prefix='', rasterOut=False):
+    def __init__(self, stats=['min', 'mean', 'std', 'count'],
+            prefix='', rasterOut=False, all_touched=False):
         self.stats = stats
         self.prefix = prefix
         self.rasterOut = rasterOut
+        self.all_touched = all_touched
 
     def describe(self, image, systems):
         # Get Affine object in order to run zonal_stats
@@ -46,10 +48,14 @@ class StatisticalDescriptor(object):
             wkts.append(sys.geom.ExportToWkt())
 
         # Compute stats for each polygon
-        stats = zonal_stats(wkts, values, stats=self.stats,
-                            affine=aff, nodata=nodata,
-                            raster_out=self.rasterOut, prefix=self.prefix)
-
+        stats = zonal_stats(wkts, values,
+                    stats=self.stats,
+                    affine=aff,
+                    nodata=nodata,
+                    raster_out=self.rasterOut,
+                    prefix=self.prefix,
+                    all_touched=self.all_touched
+                )
 
         # Each stat for each system
         for sys, stat in zip(systems, stats):
