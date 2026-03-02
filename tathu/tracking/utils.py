@@ -6,7 +6,7 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 #
 
-from osgeo import gdal, ogr
+from osgeo import gdal, ogr, osr
 
 from tathu.constants import KM_PER_DEGREE
 from tathu.geometry.utils import extent2edges
@@ -16,16 +16,24 @@ def copyImage(image):
     return driver.CreateCopy('image', image, 0)
 
 def polygonize(image, minArea=None, progress=None):
+    # Get SRS from image
+    proj_wkt = image.GetProjection()
+    srs = None
+    if proj_wkt:
+        srs = osr.SpatialReference()
+        srs.ImportFromWkt(proj_wkt)
+
     # Create layer in memory
     driver = ogr.GetDriverByName('MEMORY')
     ds = driver.CreateDataSource('systems')
-    layer = ds.CreateLayer('geom', srs=None)
+    layer = ds.CreateLayer('geom', srs=srs)
 
     # Get first band
     band = image.GetRasterBand(1)
 
     # Poligonize using GDAL method
-    gdal.Polygonize(band, band.GetMaskBand(), layer, -1, options=['8CONNECTED=8'], callback=progress)
+    gdal.Polygonize(band, band.GetMaskBand(), layer, -1,
+        options=['8CONNECTED=4'], callback=progress)
 
     polygons = []
 
