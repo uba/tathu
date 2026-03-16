@@ -38,6 +38,7 @@ class ConvectiveSystem(object):
         self.layers = {}
         self.attrs = {}
         self.event = LifeCycleEvent.SPONTANEOUS_GENERATION
+        self.duration = 0
         self.timestamp = None
         self.relationships = []
         self.raster = None
