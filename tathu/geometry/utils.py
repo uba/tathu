@@ -108,16 +108,14 @@ def ellipse2polygon(x, y, ra, rb, ang, npoints=32):
     ring = ogr.Geometry(ogr.wkbLinearRing)
     for x, y in zip(X,Y):
         ring.AddPoint(x, y)
+    ring.AddPoint(X[0], Y[0])
 
     p = ogr.Geometry(ogr.wkbPolygon)
     p.AddGeometry(ring)
 
     return p
 
-def fitEllipse(polygon):
-    # Extract coordinates to NumpyArray in order to user opencv2.fitEllipse
-    coords = extractCoordinates2NumpyArray(polygon)
-
+def fitEllipseCoordinates(coords):
     # Fit ellipse
     (xc,yc), (a,b), theta = cv2.fitEllipse(coords)
 
@@ -125,9 +123,20 @@ def fitEllipse(polygon):
     major_ax, minor_ax = a, b
     if a < b: major_ax, minor_ax = b, a
     eccentricity = np.sqrt(1 - ((minor_ax * minor_ax)/(major_ax * major_ax)))
-    
+
     return ellipse2polygon(xc, yc, a * 0.5, b * 0.5, -theta), eccentricity, theta
 
+def fitEllipse(polygon):
+    # Extract coordinates to NumpyArray in order to user opencv2.fitEllipse
+    coords = extractCoordinates2NumpyArray(polygon)
+    return fitEllipseCoordinates(coords)
+
+def fitEllipseMultiPolygon(polygons):
+    # Extract coordinates to NumpyArray in order to user opencv2.fitEllipse
+    coords = np.zeros((0, 2), dtype=np.float32)
+    for p in polygons:
+        coords = np.concatenate((coords, extractCoordinates2NumpyArray(p)), axis=0)
+    return fitEllipseCoordinates(coords)
 
 def getRadiusFromCircle(polygon):
     # Extract coordinates to NumpyArray in order to user opencv2.minEnclosingCircle
