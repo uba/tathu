@@ -295,3 +295,17 @@ class EdgeTracker(object):
                 if translated.Touches(d.geom):
                     d.name = s.name # Baptized!
                     d.geom = d.geom.Union(translated)
+
+class InsertDurationClusters():
+    '''
+    This class inserts the time position of the clusters since their detection
+    '''
+    def __init__(self, scale='seconds'):
+        self.scale=scale
+
+    def insert(self, current):
+        for c in current:
+            if c.event == LifeCycleEvent.SPONTANEOUS_GENERATION:
+                pass
+            else:
+                c.duration = (c.timestamp - c.relationships[0].timestamp).seconds + c.relationships[0].duration

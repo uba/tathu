@@ -150,6 +150,7 @@ class Outputter(object):
                 name TEXT,
                 date_time TIMESTAMP, ''' + dynAttributes + '''
                 event VARCHAR(64),
+                duration INTEGER,
                 relationships TEXT,
                 raster array,
                 nodata INTEGER,
@@ -186,12 +187,12 @@ class Outputter(object):
         for name in self.attrs:
             tuple += (s.attrs[name],)
 
-        tuple += (str(s.event), s.getRelationshipNamesAsString(), raster, nodata, s.geotransform, s.getGeomWKT())
+        tuple += (str(s.event), s.duration, s.getRelationshipNamesAsString(), raster, nodata, s.geotransform, s.getGeomWKT())
 
         return tuple
 
     def __insertSystem(self, s, cur):
-        cmd = '''INSERT INTO ''' + self.table + ''' VALUES (?, ?, ?, '''
+        cmd = '''INSERT INTO ''' + self.table + ''' VALUES (?, ?, ?, ?, '''
         for attr in self.attrs:
             cmd += '?, '
         cmd += '''?, ?, ?, ?, ?, ST_GeomFromText(?, 4326))'''
@@ -380,6 +381,7 @@ class Loader(object):
                     s.relationships.append(uuid.UUID(name))
 
             s.event = row['event']
+            s.duration = row['duration']
 
             # Load raster data
             raster = row['raster']
