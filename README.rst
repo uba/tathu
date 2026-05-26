@@ -343,6 +343,10 @@ TATHU has been used in research focused on detecting, tracking, and characterizi
 
 * Caio Atila P. Sena, Renato G. Negri, Maria Lívia L.M. Gava, GOES ABI-derived hailstorm polygons and tracking dataset for Brazil, Data in Brief, Volume 55, 2024, 110736, ISSN 2352-3409, https://doi.org/10.1016/j.dib.2024.110736.
 
+* Biscaro, T. S.; Sena, C. A. P.; Lemes, M. A. G. B.; Queiroz, A. C. S.; Vendrasco, E. P.; Carvalho da Costa, I.; Gutierrez, E. M. A. R.; Fava, M. C.; Vasconcelos, A. F.; Nascimento, E. L. Multi-scale forecasting of extreme weather events for hydrological applications. In: 10th International Conference on Flood Management, 2026, London, Canada. Proceedings of the 10th International Conference on Flood Management, 2026.
+
+* Biscaro, T. S.; Uba, D. M. Tracking and Analysis of Thunderstorms (TATHU): um framework para rastrear e analisar o ciclo de vida de sistemas convectivos. Apresentação e validação com dados de radar sobre a Amazônia Central. In: Primeira Conferência Pan-Americana de Meteorologia, 2024, São Paulo, Brasil. Anais digitais, 2024.
+
 * Gatti, E.C.; da Costa, I.C.; Vila, D. Vertical Structure of Heavy Rainfall Events in Brazil. Meteorology 2024, 3, 310-332. https://doi.org/10.3390/meteorology3030016
 
 * Lopes, Camila da Cunha. Envigoração da convecção profunda? uma análise dos sistemas convectivos na Amazônia e do papel da termodinâmica e dos aerossóis. 2025. Tese (Doutorado em Meteorologia) - Instituto de Astronomia, Geofísica e Ciências Atmosféricas, University of São Paulo, São Paulo, 2024. doi:10.11606/T.14.2024.tde-22012025-200800. https://www.teses.usp.br/teses/disponiveis/14/14133/tde-22012025-200800/en.php
