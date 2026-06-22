@@ -1,0 +1,125 @@
+#
+# This file is part of TATHU - Tracking and Analysis of Thunderstorms.
+# Copyright (C) 2022 INPE.
+#
+# TATHU - Tracking and Analysis of Thunderstorms is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
+#
+
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tathu"
+dynamic = ["version"]
+description = "TATHU is a Python package for tracking and analyzing the life cycle of convective systems."
+readme = "README.rst"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "Douglas Uba", email = "douglas.uba@inpe.br"}
+]
+keywords = ["atmospheric-science", "convective-systems", "thunderstorms", "tracking"]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+
+dependencies = [
+    "aenum",
+    "cartopy",
+    "geopandas",
+    "netcdf4",
+    "opencv-python",
+    "pathos",
+    "psycopg2-binary",
+    "pyproj",
+    "rasterstats",
+    "requests",
+    "rtree",
+    "s3fs",
+    "scikit-image",
+    "scipy",
+    "tqdm",
+]
+
+[project.urls]
+Repository = "https://github.com/uba/tathu"
+Issues = "https://github.com/uba/tathu/issues"
+Documentation = "https://tathu.readthedocs.io/en/latest/"
+
+[project.optional-dependencies]
+docs = [
+    "Sphinx>=2.2",
+    "sphinx_rtd_theme",
+    "sphinx-copybutton",
+]
+dev = [
+    "coverage>=4.5",
+    "coveralls>=1.8",
+    "pytest>=5.2",
+    "pytest-cov>=2.8",
+    "check-manifest>=0.40",
+    "isort",
+    "black",
+    "flake8",
+]
+tests = [
+    "coverage>=4.5",
+    "coveralls>=1.8",
+    "pytest>=5.2",
+    "pytest-cov>=2.8",
+    "check-manifest>=0.40",
+]
+
+[tool.setuptools]
+packages = ["tathu"]
+
+[tool.setuptools.dynamic]
+version = {attr = "tathu.version.__version__"}
+
+[tool.setuptools.package-data]
+tathu = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+branch = true
+source = ["tathu"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_glob = ["*/migrations/*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py37']
