@@ -64,15 +64,15 @@ class ConvectiveSystem(object):
     def getRelationshipNames(self):
         names = []
         for r in self.relationships:
-            if r.name != self.name:
-                names.append(str(r.name))
+            if r != self.name:
+                names.append(str(r))
         return names
 
     def getRelationshipNamesAsString(self, separator=' '):
         names = ''
         for r in self.relationships:
-            if r.name != self.name:
-                names += str(r.name) + separator
+            if r != self.name:
+                names += str(r) + separator
         if names != '':
             names = names[:-1] # remove last separator
         return names
@@ -96,6 +96,8 @@ class ConvectiveSystemFamily(object):
     i.e. the convective system spatio-temporal history.
     '''
     def __init__(self):
+        # Family name (i.e. the name of the first system in the family)
+        self.name = None
         # List of systems that composes the family
         self.systems = []
         # Timestamp index
@@ -105,6 +107,7 @@ class ConvectiveSystemFamily(object):
                          -sys.float_info.max, -sys.float_info.max]
 
     def addSystem(self, system):
+        self.name = system.name
         self.systems.append(system)
         if system.hasGeom():
             self.__updateExtent(system.getMBR())
