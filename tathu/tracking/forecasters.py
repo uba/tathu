@@ -99,3 +99,95 @@ class Conservative(object):
                 forecasts[t].append(prevision)
 
         return forecasts
+        
+class ConservativeMergeSystemsOF(object):
+    '''
+    This class implements a Conservative forecaster using Optocal Flow method.
+    '''
+
+    def __init__(self, previous, intervals, gridP, gridC, overlap=.01, applyScale=False):
+        self.previous=previous        # Set of previous systems at time.
+        self.intervals=intervals      # List of intervals for forecasting. Ex.: [15, 30, 45, 60] # minutes
+        self.applyScale=applyScale    # A flag that indicates if forecast will be scaled.
+        self.OverlapArea=overlap      # To split/merge situations used in tracking method
+        self.gridP = gridP            # Raster file corresponding to the preview image
+        self.gridC = gridC            # Raster file corresponding to the current image
+
+    def forecast(self, current):
+        from tathu.tracking import descriptors
+        # Create results
+        forecasts = {}
+        for t in self.intervals:
+                forecasts[t] = []
+
+        # Get grid informations
+        delta_lon = current[0].geotransform[1]
+        delta_lat = current[0].geotransform[5]    
+
+        # Obtains the displacement of convective systems.
+        descriptor = descriptors.OpticalFlowDescriptor(self.gridP)
+
+        for sys in current:
+            if sys.event == LifeCycleEvent.SPONTANEOUS_GENERATION:
+                continue  # no forecast, for while
+
+            elapsedtime = compute_elapsed_time(sys)
+            if elapsedtime == 0.0:
+                continue
+
+            if sys.event == LifeCycleEvent.CONTINUITY:
+                descriptor.describe(self.gridC, [sys])
+                dx = (sys.attrs['u_mean']/elapsedtime)*delta_lon
+                dy = (sys.attrs['v_mean']/elapsedtime)*delta_lat
+                
+            if sys.event == LifeCycleEvent.SPLIT:
+                # Searching for convective systems with the same name in the previous image
+                pol = sys.relationships[0].geom
+                group=[]
+                for cc in current:
+                    interbool = pol.Intersect(cc.geom)
+                    intersection = pol.Intersection(cc.geom)
+                    interarea = intersection.GetArea()
+                    if interbool:
+                        if interarea >= self.OverlapArea:
+                            group.append(cc.geom)
+                split = group[0]
+                for g in group[1:]:
+                    split = split.Union(g)
+                sp = copy.deepcopy(sys)
+                sp.geom = split
+                descriptor.describe(self.gridC, [sp])
+                dx = (sp.attrs['u_mean']/elapsedtime)*delta_lon
+                dy = (sp.attrs['v_mean']/elapsedtime)*delta_lat
+                
+            if sys.event == LifeCycleEvent.MERGE:
+                pol = sys.geom
+                group=[]
+                for cc in self.previous:
+                    interbool = pol.Intersect(cc.geom)
+                    intersection = pol.Intersection(cc.geom)
+                    interarea = intersection.GetArea()
+                    if interbool:
+                        if interarea >= self.OverlapArea:
+                            group.append(cc.geom)
+                merge = group[0]
+                for g in group[1:]:
+                    merge = merge.Union(g)
+                mg = copy.deepcopy(sys)
+                mg.geom = merge
+                descriptor.describe(self.gridC, [mg])
+                dx = (mg.attrs['u_mean']/elapsedtime)*delta_lon
+                dy = (mg.attrs['v_mean']/elapsedtime)*delta_lat
+                        
+            ### Compute scale factor ###
+            scale = compute_scale_factor(sys, elapsedtime)
+
+            # Apply transform (for each interval)
+            for t in self.intervals:
+                prevision = copy.deepcopy(sys)
+                prevision.attrs['dt'] = t
+                prevision.geom = transform.translate(sys.geom, dx * t, dy * t)
+                if self.applyScale:
+                    prevision.geom = transform.scale(prevision.geom, 1 + scale * t, 1 + scale * t)
+                forecasts[t].append(prevision)
+        return forecasts
