@@ -8,6 +8,7 @@
 
 import copy
 import math
+import datetime
 
 from osgeo import ogr
 
@@ -136,10 +137,16 @@ class ConservativeMergeSystemsOF(object):
                 continue
 
             if sys.event == LifeCycleEvent.CONTINUITY:
+                # Calculates the displacement vector using the Optical Flow method
                 descriptor.describe(self.gridC, [sys])
-                dx = (sys.attrs['u_mean']/elapsedtime)*delta_lon
-                dy = (sys.attrs['v_mean']/elapsedtime)*delta_lat
-                
+
+                dx = (sys.attrs['u_mean'])*delta_lon/elapsedtime
+                if abs(dx) < abs(delta_lon/elapsedtime):
+                   dx = (sys.attrs['u_mean'])*delta_lon
+                dy = (sys.attrs['v_mean'])*delta_lat/elapsedtime
+                if abs(dy) < abs(delta_lat/elapsedtime):
+                   dy = (sys.attrs['v_mean'])*delta_lat
+
             if sys.event == LifeCycleEvent.SPLIT:
                 # Searching for convective systems with the same name in the previous image
                 pol = sys.relationships[0].geom
@@ -156,28 +163,44 @@ class ConservativeMergeSystemsOF(object):
                     split = split.Union(g)
                 sp = copy.deepcopy(sys)
                 sp.geom = split
+
+                descriptor = descriptors.OpticalFlowDescriptor(self.gridP)
                 descriptor.describe(self.gridC, [sp])
-                dx = (sp.attrs['u_mean']/elapsedtime)*delta_lon
-                dy = (sp.attrs['v_mean']/elapsedtime)*delta_lat
+
+                dx = (sp.attrs['u_mean'])*delta_lon/elapsedtime
+                if abs(dx) < abs(delta_lon/elapsedtime):
+                    dx = (sp.attrs['u_mean'])*delta_lon
+                
+                dy = (sp.attrs['v_mean'])*delta_lat/elapsedtime
+                if abs(dy) < abs(delta_lat/elapsedtime):
+                        dy = (sp.attrs['v_mean'])*delta_lat
                 
             if sys.event == LifeCycleEvent.MERGE:
-                pol = sys.geom
-                group=[]
-                for cc in self.previous:
-                    interbool = pol.Intersect(cc.geom)
-                    intersection = pol.Intersection(cc.geom)
-                    interarea = intersection.GetArea()
-                    if interbool:
-                        if interarea >= self.OverlapArea:
-                            group.append(cc.geom)
-                merge = group[0]
-                for g in group[1:]:
-                    merge = merge.Union(g)
-                mg = copy.deepcopy(sys)
-                mg.geom = merge
-                descriptor.describe(self.gridC, [mg])
-                dx = (mg.attrs['u_mean']/elapsedtime)*delta_lon
-                dy = (mg.attrs['v_mean']/elapsedtime)*delta_lat
+                # pol = sys.geom
+                # group=[]
+                # for cc in self.previous:
+                #     interbool = pol.Intersect(cc.geom)
+                #     intersection = pol.Intersection(cc.geom)
+                #     interarea = intersection.GetArea()
+                #     if interbool:
+                #         if interarea >= self.OverlapArea:
+                #             group.append(cc.geom)
+                # merge = group[0]
+                # for g in group[1:]:
+                #     merge = merge.Union(g)
+                # mg = copy.deepcopy(sys)
+                # mg.geom = merge
+
+                descriptor = descriptors.OpticalFlowDescriptor(self.gridP)
+                descriptor.describe(self.gridC, [sys])
+
+                dx = (sys.attrs['u_mean'])*delta_lon/elapsedtime
+                if abs(dx) < abs(delta_lon/elapsedtime):
+                   dx = (sys.attrs['u_mean'])*delta_lon
+                
+                dy = (sys.attrs['v_mean'])*delta_lat/elapsedtime
+                if abs(dy) < abs(delta_lat/elapsedtime):
+                    dy = (sys.attrs['v_mean'])*delta_lat
                         
             ### Compute scale factor ###
             scale = compute_scale_factor(sys, elapsedtime)
@@ -186,6 +209,7 @@ class ConservativeMergeSystemsOF(object):
             for t in self.intervals:
                 prevision = copy.deepcopy(sys)
                 prevision.attrs['dt'] = t
+                prevision.timestamp=sys.timestamp+datetime.timedelta(minutes=t)
                 prevision.geom = transform.translate(sys.geom, dx * t, dy * t)
                 if self.applyScale:
                     prevision.geom = transform.scale(prevision.geom, 1 + scale * t, 1 + scale * t)
