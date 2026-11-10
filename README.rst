@@ -21,8 +21,8 @@ TATHU - Tracking and Analysis of Thunderstorms
         :target: https://tathu.readthedocs.io/en/latest/
         :alt: Documentation Status
 
-.. image:: https://img.shields.io/badge/lifecycle-experimental-orange.svg
-        :target: https://www.tidyverse.org/lifecycle/#maturing
+.. image:: https://img.shields.io/badge/Lifecycle-Stable-97ca00
+        :target: https://github.com/uba/tathu
         :alt: Software Life Cycle
 
 .. image:: https://img.shields.io/github/tag/uba/tathu.svg
